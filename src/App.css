@@ -1,38 +1,96 @@
-.App {
-  text-align: center;
+main {
+  margin-top: min(10px, 5vh);
+  margin-bottom: min(10px, 5vh);
+  /* border: 1px solid red; */
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.chat-wrapper {
+  height: 80vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.message-container {
+  overflow-y: auto;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+  text-align: center;
+  border-bottom: none !important;
+  flex-grow: 2;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.message-bubble {
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.5rem;
+  position: relative;
+  clear: both;
+  text-align: left;
+}
+
+.message-row {
+  clear: both;
+  margin: 0.1rem;
+}
+
+.message-row[data-origin="received"] {
+  float: left;
+  margin-right: 10%;
+}
+
+.message-row[data-origin="sending"] {
+  opacity: 75%;
+}
+
+.message-row[data-origin="sending"],
+.message-row[data-origin="sent"] {
+  float: right;
+  margin-left: 10%;
+}
+
+.message-bubble .message-text {
+  display: inline;
+}
+
+.message-bubble .timestamp {
+  display: inline-block;
+}
+
+.message-bubble .timestamp-invisible-space {
+  display: inline-block;
+  visibility: hidden;
+  margin-left: 1em;
+}
+
+.message-bubble .timestamp-invisible-space,
+.message-bubble .timestamp-visible {
+  font-size: 80%;
+}
+
+.message-bubble .timestamp-visible {
+  user-select: none;
+  position: absolute;
+  right: 0.5em;
+  bottom: 0.5em;
+  opacity: 50%;
+}
+
+.message-sender {
+  font-weight: bold;
+  font-size: 80%;
+  margin-bottom: 0.3em;
+  opacity: 70%;
+}
+
+.message-text {
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.after-bubbles {
+  clear: both;
+  margin-bottom: 1em;
+}
+
+.chat-header {
+  flex-shrink: 0;
 }

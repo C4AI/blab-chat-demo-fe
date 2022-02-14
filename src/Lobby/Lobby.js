@@ -48,17 +48,17 @@ function Lobby({ handleJoining, handleRoomCreation }) {
       <TextField
         required
         id="name"
+        className="user-name-field"
         label={<Trans i18nKey="yourName">Your name</Trans>}
         name="user_name"
         variant="outlined"
-        style={{ width: "100%" }}
         value={nickname || ""}
         onChange={(e) => setNickname(e.target.value)}
       />
 
       <Button
+        className="join-chat-btn"
         variant="contained"
-        style={{ width: "100%", marginTop: "1em" }}
         onClick={() =>
           selectedId === idForNewConversation
             ? handleRoomCreation(nickname, newConversationName)

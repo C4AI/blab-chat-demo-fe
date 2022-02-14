@@ -14,7 +14,10 @@ export function BubbleTimestamp({ time }) {
   }).format(t);
   return (
     <div className="timestamp">
+      {/* invisible element to make room for the timestamp if needed */}
       <div className="timestamp-invisible-space">{timeStr}</div>
+
+      {/* visible timestamp (bottom-right corner) */}
       <Tooltip title={fullTimeStr}>
         <div className="timestamp-visible">{timeStr}</div>
       </Tooltip>
@@ -34,15 +37,18 @@ function MessageBubble({ message, origin, quotedMessage = null }) {
 
   return (
     <div data-msg-id={"msg_" + message.id} className="message-bubble" style={s}>
-      {origin === "received" ? (
+      {/* sender (only if it is someone else) */}
+      {origin === "received" && (
         <div className="message-sender">{message.sender.name}</div>
-      ) : (
-        ""
       )}
 
-      {quotedMessage ? <QuotedMessage message={quotedMessage} /> : ""}
+      {/* quoted message */}
+      {quotedMessage && <QuotedMessage message={quotedMessage} />}
 
-      {message.text ? <div className="message-text">{message.text}</div> : ""}
+      {/* message text */}
+      {message.text && <div className="message-text">{message.text}</div>}
+
+      {/* timestamp */}
       <BubbleTimestamp time={message.time} />
     </div>
   );

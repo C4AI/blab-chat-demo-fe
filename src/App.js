@@ -68,7 +68,7 @@ function Main() {
           TRY AGAIN.
         </p>
       )}
-      {process.env.NODE_ENV === "development" ? (
+      {process.env.NODE_ENV === "development" && (
         <div>
           <p>
             ENVIRONMENT: <b>{process.env.NODE_ENV}</b>
@@ -82,8 +82,6 @@ function Main() {
             {i18n.resolvedLanguage}
           </p>
         </div>
-      ) : (
-        ""
       )}
     </Container>
   );

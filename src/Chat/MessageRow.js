@@ -33,7 +33,7 @@ function MessageRow({
       data-origin={origin}
     >
       <div className="before"></div>
-      {replyBtn && origin !== "received" ? replyBtn : ""}
+      {replyBtn && origin !== "received" && replyBtn}
       {message["type"] === MESSAGE_TYPES.SYSTEM ? (
         <SystemMessage message={message} myParticipantId={myParticipantId} />
       ) : (
@@ -43,7 +43,7 @@ function MessageRow({
           quotedMessage={quotedMessage}
         />
       )}
-      {replyBtn && origin === "received" ? replyBtn : ""}
+      {replyBtn && origin === "received" && replyBtn}
       <div className="after"></div>
     </div>
   );

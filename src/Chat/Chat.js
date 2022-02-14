@@ -184,6 +184,7 @@ function Chat({ conversationId, onLeave }) {
 
   return (
     <div className="chat-wrapper">
+      {/* header */}
       <Card className="chat-header">
         <CardHeader
           className="chat-header"
@@ -204,6 +205,7 @@ function Chat({ conversationId, onLeave }) {
         />
       </Card>
 
+      {/* messages */}
       <Paper variant="outlined" className="message-container">
         {messages.map((message) => (
           <MessageRow
@@ -230,15 +232,15 @@ function Chat({ conversationId, onLeave }) {
 
       <div></div>
 
-      {quotedMessage ? (
+      {/* quoted message */}
+      {quotedMessage && (
         <QuotedMessage
           message={quotedMessage}
           handleRemoveQuote={(e) => setQuotedMessage(null)}
         />
-      ) : (
-        ""
       )}
 
+      {/* message field */}
       <TextField
         value={typedMessage}
         fullWidth

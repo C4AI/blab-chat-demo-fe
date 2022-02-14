@@ -23,28 +23,42 @@ main {
   border-radius: 0.5rem;
   padding: 0.5rem 0.5rem;
   position: relative;
-  clear: both;
   text-align: left;
+  display: inline-block;
 }
 
 .message-row {
   clear: both;
   margin: 0.1rem;
+  display: flex;
 }
 
-.message-row[data-origin="received"] {
-  float: left;
-  margin-right: 10%;
+.message-row .before,
+.message-row .after {
+  min-width: 1%;
 }
 
 .message-row[data-origin="sending"] {
   opacity: 75%;
 }
 
-.message-row[data-origin="sending"],
-.message-row[data-origin="sent"] {
-  float: right;
-  margin-left: 10%;
+.message-row[data-origin="sending"] .before,
+.message-row[data-origin="sent"] .before,
+.message-row[data-origin="received"] .after,
+.message-row[data-origin="system"] .before,
+.message-row[data-origin="system"] .after {
+  flex-grow: 2;
+}
+
+.message-row:hover .reply-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.message-row:not(:hover) .reply-btn {
+  display: none;
 }
 
 .message-bubble .message-text {
@@ -79,6 +93,7 @@ main {
   font-size: 80%;
   margin-bottom: 0.3em;
   opacity: 70%;
+  color: black;
 }
 
 .message-text {
@@ -93,4 +108,29 @@ main {
 
 .chat-header {
   flex-shrink: 0;
+}
+
+.quoted-message {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 0.5em;
+  display: flex;
+  background-color: rgba(255, 255, 255, 0.7);
+  color: black;
+  font-size: 90%;
+}
+
+.message-row .quoted-message {
+  margin-bottom: 0.5em;
+}
+
+.quoted-message .main-quote {
+  flex-grow: 2;
+}
+
+.quoted-message .left-quote {
+  background-color: grey;
+  width: 4px;
+  flex-grow: 0;
+  flex-shrink: 0;
+  margin-right: 3px;
 }

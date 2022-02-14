@@ -10,12 +10,13 @@ import {
 } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { w3cwebsocket as W3CWebSocket } from "websocket";
-import MessageRow from "./Message";
+import MessageRow from "./MessageRow";
 import SendIcon from "@mui/icons-material/Send";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { v4 as uuidv4 } from "uuid";
 import { Trans } from "react-i18next";
 import MESSAGE_TYPES from "./io";
+import QuotedMessage from "./QuotedMessage";
 
 function RightMenu(onTrigger) {
   const [menuAnchor, setMenuAnchor] = useState(null);
@@ -51,6 +52,8 @@ function Chat({ conversationId, onLeave }) {
   const [messages, setMessages] = useState([]);
   // messages returned by the server (sent, received, system)
 
+  const [messagesById, setMessagesById] = useState({});
+
   const [pendingMessages, setPendingMessages] = useState([]);
 
   const [sentMessageLocalIds, setSentMessageLocalIds] = useState(new Set());
@@ -66,6 +69,8 @@ function Chat({ conversationId, onLeave }) {
   const [participants, setParticipants] = useState([]);
   const [conversationName, setConversationName] = useState("");
 
+  const [quotedMessage, setQuotedMessage] = useState(null);
+
   const webSocketURL =
     process.env.REACT_APP_CHAT_WS_URL || "ws://" + window.location.hostname;
 
@@ -76,6 +81,7 @@ function Chat({ conversationId, onLeave }) {
           new Set(sent).add(newMessage.local_id)
         );
       }
+
       newMessage.timestamp = new Date(newMessage.time);
       if (!messages.length) return [newMessage];
       const last = messages[messages.length - 1];
@@ -111,6 +117,9 @@ function Chat({ conversationId, onLeave }) {
   const receiveMessage = useCallback(
     function (message) {
       setMessages((existing) => insertMessage(existing, message));
+      setMessagesById((messagesById) => {
+        return { ...messagesById, [message.id]: message };
+      });
     },
     [insertMessage]
   );
@@ -161,10 +170,12 @@ function Chat({ conversationId, onLeave }) {
       local_id: uuidv4().replace(/-/g, ""),
       time: t,
       timestamp: t.toISOString(),
+      quoted_message_id: quotedMessage ? quotedMessage.id : null,
     };
     setPendingMessages((pending) => [...pending, message]);
     sendMessage(message);
     setTypedMessage("");
+    setQuotedMessage(null);
   };
 
   const sendMessage = (message) => {
@@ -199,6 +210,8 @@ function Chat({ conversationId, onLeave }) {
             key={message.id}
             message={message}
             myParticipantId={myParticipantId}
+            handleQuote={() => setQuotedMessage(message)}
+            quotedMessage={messagesById[message.quoted_message_id] || null}
           />
         ))}
         {pendingMessages
@@ -216,6 +229,15 @@ function Chat({ conversationId, onLeave }) {
       </Paper>
 
       <div></div>
+
+      {quotedMessage ? (
+        <QuotedMessage
+          message={quotedMessage}
+          handleRemoveQuote={(e) => setQuotedMessage(null)}
+        />
+      ) : (
+        ""
+      )}
 
       <TextField
         value={typedMessage}

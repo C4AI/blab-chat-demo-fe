@@ -1,6 +1,7 @@
 import { useTheme } from "@emotion/react";
 import { Tooltip } from "@mui/material";
 import i18n from "../i18n";
+import QuotedMessage from "./QuotedMessage";
 
 export function BubbleTimestamp({ time }) {
   const t = new Date(time);
@@ -21,7 +22,7 @@ export function BubbleTimestamp({ time }) {
   );
 }
 
-function MessageBubble({ message, origin }) {
+function MessageBubble({ message, origin, quotedMessage = null }) {
   const theme = useTheme();
   const s = {
     backgroundColor:
@@ -34,13 +35,14 @@ function MessageBubble({ message, origin }) {
   return (
     <div data-msg-id={"msg_" + message.id} className="message-bubble" style={s}>
       {origin === "received" ? (
-        <div className="message-sender" style={{ color: "black" }}>
-          {message.sender.name}
-        </div>
+        <div className="message-sender">{message.sender.name}</div>
       ) : (
         ""
       )}
-      <div className="message-text">{message.text}</div>
+
+      {quotedMessage ? <QuotedMessage message={quotedMessage} /> : ""}
+
+      {message.text ? <div className="message-text">{message.text}</div> : ""}
       <BubbleTimestamp time={message.time} />
     </div>
   );

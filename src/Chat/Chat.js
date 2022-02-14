@@ -15,6 +15,7 @@ import SendIcon from "@mui/icons-material/Send";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { v4 as uuidv4 } from "uuid";
 import { Trans } from "react-i18next";
+import MESSAGE_TYPES from "./io";
 
 function RightMenu(onTrigger) {
   const [menuAnchor, setMenuAnchor] = useState(null);
@@ -64,6 +65,9 @@ function Chat({ conversationId, onLeave }) {
 
   const [participants, setParticipants] = useState([]);
   const [conversationName, setConversationName] = useState("");
+
+  const webSocketURL =
+    process.env.REACT_APP_CHAT_WS_URL || "ws://" + window.location.hostname;
 
   const insertMessage = useCallback(
     (messages, newMessage) => {
@@ -132,9 +136,7 @@ function Chat({ conversationId, onLeave }) {
     if (!socket.current || socket.current.readyState !== W3CWebSocket.OPEN) {
       setMessages([]);
       socket.current = conversationId
-        ? new W3CWebSocket(
-            "ws://localhost:8000/ws/chat/" + conversationId + "/"
-          )
+        ? new W3CWebSocket(webSocketURL + "/ws/chat/" + conversationId + "/")
         : null;
       if (socket.current) {
         socket.current.onopen = () => {};
@@ -148,12 +150,12 @@ function Chat({ conversationId, onLeave }) {
         };
       }
     }
-  }, [conversationId, onLeave, onReceiveEvent]);
+  }, [conversationId, onLeave, onReceiveEvent, webSocketURL]);
 
   const sendPlainTextMessage = (text) => {
     const t = new Date();
     const message = {
-      type: "T",
+      type: MESSAGE_TYPES.TEXT,
       text: text,
       sender: { id: myParticipantId },
       local_id: uuidv4().replace(/-/g, ""),

@@ -1,0 +1,14 @@
+{
+  "newConversation": "New:",
+  "newConversationName": "Conversation name",
+  "yourName": "Name",
+  "joinConversation": "Join conversation",
+  "createConversation": "Create conversation",
+  "createdConversation": "Conversation created",
+  "joinedConversation": "<0>{{name}}</0> joined the conversation",
+  "youJoinedConversation": "You joined the conversation",
+  "leftConversation": "<0>{{name}}</0> left the conversation",
+  "youLeftConversation": "You left the conversation",
+  "typeMessage": "Type a message",
+  "leaveConversation": "Leave"
+}

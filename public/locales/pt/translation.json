@@ -1,0 +1,14 @@
+{
+  "newConversation": "Nova:",
+  "newConversationName": "Nome da conversa",
+  "yourName": "Nome",
+  "joinConversation": "Entrar na conversa",
+  "createConversation": "Criar conversa",
+  "createdConversation": "Conversa criada",
+  "joinedConversation": "<0>{{name}}</0> entrou na conversa",
+  "youJoinedConversation": "Você entrou na conversa",
+  "leftConversation": "<0>{{name}}</0> saiu da conversa",
+  "youLeftConversation": "Você saiu da conversa",
+  "typeMessage": "Digite uma mensagem",
+  "leaveConversation": "Sair"
+}

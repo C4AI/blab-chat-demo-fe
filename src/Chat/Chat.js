@@ -9,14 +9,13 @@ import {
   TextField,
 } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { w3cwebsocket as W3CWebSocket } from "websocket";
 import MessageRow from "./MessageRow";
 import SendIcon from "@mui/icons-material/Send";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { v4 as uuidv4 } from "uuid";
 import { Trans } from "react-i18next";
-import MESSAGE_TYPES from "./io";
 import QuotedMessage from "./QuotedMessage";
+import MessageIO from "./io";
 
 function RightMenu(onTrigger) {
   const [menuAnchor, setMenuAnchor] = useState(null);
@@ -54,31 +53,6 @@ function Chat({
   onLeave,
   initialConversationName = "",
 }) {
-  const [messages, setMessages] = useState([]);
-  // messages returned by the server (sent, received, system)
-
-  const [messagesById, setMessagesById] = useState({});
-
-  const [pendingMessages, setPendingMessages] = useState([]);
-
-  const [sentMessageLocalIds, setSentMessageLocalIds] = useState(new Set());
-
-  const [typedMessage, setTypedMessage] = useState("");
-  // current message typed by the user
-
-  const socket = useRef(null);
-  const messageListEndRef = useRef(null);
-
-  const [participants, setParticipants] = useState([]);
-  const [conversationName, setConversationName] = useState(
-    initialConversationName
-  );
-
-  const [quotedMessage, setQuotedMessage] = useState(null);
-
-  const webSocketURL =
-    process.env.REACT_APP_CHAT_WS_URL || "ws://" + window.location.hostname;
-
   const insertMessage = useCallback(
     (messages, newMessage) => {
       if (newMessage.sender && newMessage.sender.id === myParticipantId) {
@@ -115,10 +89,6 @@ function Chat({
     [myParticipantId]
   );
 
-  useEffect(() => {
-    messageListEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, pendingMessages]);
-
   const receiveMessage = useCallback(
     function (message) {
       setMessages((existing) => insertMessage(existing, message));
@@ -136,39 +106,69 @@ function Chat({
   }, []);
 
   const onReceiveEvent = useCallback(
-    (m) => {
-      const event = JSON.parse(m.data);
-      if ("message" in event) receiveMessage(event["message"]);
-      if ("state" in event) receiveState(event["state"]);
+    (type, event) => {
+      switch (type) {
+        case "message":
+          receiveMessage(event);
+          break;
+        case "state":
+          receiveState(event);
+          break;
+        default:
+          break;
+      }
     },
     [receiveState, receiveMessage]
   );
 
+  const messageInputRef = useRef(null);
+
+  const [messages, setMessages] = useState([]);
+  // messages returned by the server (sent, received, system)
+
+  const [messagesById, setMessagesById] = useState({});
+
+  const [pendingMessages, setPendingMessages] = useState([]);
+
+  const ioRef = useRef(null);
   useEffect(() => {
-    if (!socket.current || socket.current.readyState !== W3CWebSocket.OPEN) {
-      setMessages([]);
-      socket.current = conversationId
-        ? new W3CWebSocket(webSocketURL + "/ws/chat/" + conversationId + "/")
-        : null;
-      if (socket.current) {
-        socket.current.onopen = () => {};
-        socket.current.onmessage = (m) => onReceiveEvent(m);
-        socket.current.onerror = (ev) => {
-          onLeave();
-        };
-        const s = socket.current;
-        return () => {
-          s.close();
-        };
-      }
-    }
-  }, [conversationId, onLeave, onReceiveEvent, webSocketURL]);
+    if (!ioRef.current)
+      ioRef.current = new MessageIO(
+        conversationId,
+        myParticipantId,
+        onReceiveEvent,
+        setPendingMessages
+      );
+    const s = ioRef.current;
+    return () => {
+      s && s.close();
+    };
+  }, [conversationId, myParticipantId, onReceiveEvent]);
+  const io = ioRef.current;
+
+  const [sentMessageLocalIds, setSentMessageLocalIds] = useState(new Set());
+
+  const [typedMessage, setTypedMessage] = useState("");
+  // current message typed by the user
+
+  const messageListEndRef = useRef(null);
+
+  const [participants, setParticipants] = useState([]);
+  const [conversationName, setConversationName] = useState(
+    initialConversationName
+  );
+
+  const [quotedMessage, setQuotedMessage] = useState(null);
+
+  useEffect(() => {
+    messageListEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, pendingMessages]);
 
   const sendPlainTextMessage = (text) => {
     const t = new Date();
     if (!text) return;
     const message = {
-      type: MESSAGE_TYPES.TEXT,
+      type: MessageIO.MessageTypes.TEXT,
       text: text,
       sender: { id: myParticipantId },
       local_id: uuidv4().replace(/-/g, ""),
@@ -176,14 +176,9 @@ function Chat({
       timestamp: t.toISOString(),
       quoted_message_id: quotedMessage ? quotedMessage.id : null,
     };
-    setPendingMessages((pending) => [...pending, message]);
-    sendMessage(message);
+    io.enqueueMessage(message);
     setTypedMessage("");
     setQuotedMessage(null);
-  };
-
-  const sendMessage = (message) => {
-    socket.current.send(JSON.stringify(message));
   };
 
   return (
@@ -216,7 +211,10 @@ function Chat({
             key={message.id}
             message={message}
             myParticipantId={myParticipantId}
-            handleQuote={() => setQuotedMessage(message)}
+            handleQuote={() => {
+              setQuotedMessage(message);
+              messageInputRef.current.focus();
+            }}
             quotedMessage={messagesById[message.quoted_message_id] || null}
           />
         ))}
@@ -240,12 +238,16 @@ function Chat({
       {quotedMessage && (
         <QuotedMessage
           message={quotedMessage}
-          handleRemoveQuote={(e) => setQuotedMessage(null)}
+          handleRemoveQuote={(e) => {
+            setQuotedMessage(null);
+            messageInputRef.current.focus();
+          }}
         />
       )}
 
       {/* message field */}
       <TextField
+        inputRef={messageInputRef}
         value={typedMessage}
         fullWidth
         multiline

@@ -1,8 +1,8 @@
 import { IconButton } from "@mui/material";
-import MESSAGE_TYPES from "./io";
 import MessageBubble from "./MessageBubble";
 import SystemMessage from "./SystemMessage";
 import ReplyIcon from "@mui/icons-material/Reply";
+import MessageIO from "./io";
 
 function MessageRow({
   message,
@@ -11,7 +11,7 @@ function MessageRow({
   quotedMessage = null,
 }) {
   const origin =
-    message.type === MESSAGE_TYPES.SYSTEM
+    message.type === MessageIO.MessageTypes.SYSTEM
       ? "system"
       : myParticipantId && message.sender.id === myParticipantId
       ? message.id
@@ -19,7 +19,7 @@ function MessageRow({
         : "sending"
       : "received";
   const replyBtn =
-    message["type"] !== MESSAGE_TYPES.SYSTEM ? (
+    message["type"] !== MessageIO.MessageTypes.SYSTEM ? (
       <div className="reply-btn">
         <IconButton size="small" onClick={(e) => handleQuote()}>
           <ReplyIcon fontSize="small" />
@@ -34,7 +34,7 @@ function MessageRow({
     >
       <div className="before"></div>
       {replyBtn && origin !== "received" && replyBtn}
-      {message["type"] === MESSAGE_TYPES.SYSTEM ? (
+      {message["type"] === MessageIO.MessageTypes.SYSTEM ? (
         <SystemMessage message={message} myParticipantId={myParticipantId} />
       ) : (
         <MessageBubble

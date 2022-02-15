@@ -33,6 +33,11 @@ main {
   display: flex;
 }
 
+.message-row[data-origin="system"] + .message-row:not([data-origin="system"]),
+.message-row:not([data-origin="system"]) + .message-row[data-origin="system"] {
+  margin-top: 0.3rem;
+}
+
 .message-row .before,
 .message-row .after {
   min-width: 1%;

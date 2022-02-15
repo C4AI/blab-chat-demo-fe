@@ -48,7 +48,12 @@ function RightMenu(onTrigger) {
   );
 }
 
-function Chat({ conversationId, onLeave }) {
+function Chat({
+  conversationId,
+  myParticipantId,
+  onLeave,
+  initialConversationName = "",
+}) {
   const [messages, setMessages] = useState([]);
   // messages returned by the server (sent, received, system)
 
@@ -64,10 +69,10 @@ function Chat({ conversationId, onLeave }) {
   const socket = useRef(null);
   const messageListEndRef = useRef(null);
 
-  const [myParticipantId, setMyParticipantId] = useState(null);
-
   const [participants, setParticipants] = useState([]);
-  const [conversationName, setConversationName] = useState("");
+  const [conversationName, setConversationName] = useState(
+    initialConversationName
+  );
 
   const [quotedMessage, setQuotedMessage] = useState(null);
 
@@ -112,7 +117,7 @@ function Chat({ conversationId, onLeave }) {
 
   useEffect(() => {
     messageListEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, pendingMessages]);
 
   const receiveMessage = useCallback(
     function (message) {
@@ -128,8 +133,6 @@ function Chat({ conversationId, onLeave }) {
     if ("participants" in state) setParticipants(state["participants"]);
     if ("conversation_name" in state)
       setConversationName(state["conversation_name"]);
-    if ("my_participant_id" in state)
-      setMyParticipantId(state["my_participant_id"]);
   }, []);
 
   const onReceiveEvent = useCallback(
@@ -163,6 +166,7 @@ function Chat({ conversationId, onLeave }) {
 
   const sendPlainTextMessage = (text) => {
     const t = new Date();
+    if (!text) return;
     const message = {
       type: MESSAGE_TYPES.TEXT,
       text: text,

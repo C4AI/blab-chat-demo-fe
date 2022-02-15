@@ -1,4 +1,4 @@
-import { Button, Container, createTheme, ThemeProvider } from "@mui/material";
+import { Container, createTheme, ThemeProvider } from "@mui/material";
 import { Suspense, useEffect, useState } from "react";
 
 import "./App.css";
@@ -18,9 +18,19 @@ function Main() {
   const { i18n } = useTranslation();
 
   const conversationIdKey = "conversationId";
+  const myParticipantIdKey = "myParticipantId";
+  const conversationNameKey = "conversationName";
 
   const [conversationId, setConversationId] = useState(
     localStorage.getItem(conversationIdKey)
+  );
+
+  const [myParticipantId, setMyParticipantId] = useState(
+    localStorage.getItem(myParticipantIdKey)
+  );
+
+  const [conversationName, setConversationName] = useState(
+    localStorage.getItem(conversationNameKey)
   );
 
   useEffect(() => {
@@ -28,13 +38,29 @@ function Main() {
     else localStorage.removeItem(conversationIdKey);
   }, [conversationId]);
 
+  useEffect(() => {
+    if (conversationName)
+      localStorage.setItem(conversationNameKey, conversationName);
+    else localStorage.removeItem(conversationNameKey);
+  }, [conversationName]);
+
+  useEffect(() => {
+    if (myParticipantId)
+      localStorage.setItem(myParticipantIdKey, myParticipantId);
+    else localStorage.removeItem(myParticipantIdKey);
+  }, [myParticipantId]);
+
   function createConversation(nickname, conversationName) {
     axios
       .post("/api/chat/conversations/", {
         nickname: nickname,
         name: conversationName,
       })
-      .then((r) => setConversationId(r.data.id))
+      .then((r) => {
+        setConversationName(r.data.conversation.name);
+        setMyParticipantId(r.data.my_participant_id);
+        setConversationId(r.data.conversation.id);
+      })
       .catch((e) => console.log(e));
   }
 
@@ -43,7 +69,11 @@ function Main() {
       .post("/api/chat/conversations/" + conversationId + "/join/", {
         nickname: nickname,
       })
-      .then((r) => setConversationId(conversationId))
+      .then((r) => {
+        setMyParticipantId(r.data.my_participant_id);
+        setConversationName(r.data.conversation.name);
+        setConversationId(r.data.conversation.id);
+      })
       .catch((e) => console.log(e));
   }
 
@@ -58,7 +88,12 @@ function Main() {
         ) : (
           <Chat
             conversationId={conversationId}
-            onLeave={() => setConversationId(null)}
+            myParticipantId={myParticipantId}
+            initialConversationName={conversationName}
+            onLeave={() => {
+              setConversationId(null);
+              setMyParticipantId(null);
+            }}
           />
         )
       ) : (

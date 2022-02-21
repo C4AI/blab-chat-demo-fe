@@ -1,9 +1,14 @@
+import PropTypes from "prop-types";
 import { useTheme } from "@emotion/react";
 import { Tooltip } from "@mui/material";
 import i18n from "../i18n";
 import QuotedMessage from "./QuotedMessage";
+import { Message } from "./data-structures";
 
-function BubbleTimestamp({ time }) {
+/**
+ * Display a timestamp on the bottom-right corner.
+ */
+function BottomRightTimestamp({ time }) {
   const t = new Date(time);
   const timeStr = Intl.DateTimeFormat(i18n.language, {
     timeStyle: "short",
@@ -24,8 +29,19 @@ function BubbleTimestamp({ time }) {
     </div>
   );
 }
+BottomRightTimestamp.propTypes = {
+  /** the time to display */
+  time: PropTypes.instanceOf(Date).isRequired,
+};
 
-function MessageBubble({ message, origin, quotedMessage = null }) {
+/**
+ * Display a bubble with the contents of a message.
+ */
+export default function MessageBubble({
+  message,
+  origin,
+  quotedMessage = null,
+}) {
   const theme = useTheme();
   const s = {
     backgroundColor:
@@ -49,9 +65,18 @@ function MessageBubble({ message, origin, quotedMessage = null }) {
       {message.text && <div className="message-text">{message.text}</div>}
 
       {/* timestamp */}
-      <BubbleTimestamp time={message.time} />
+      <BottomRightTimestamp time={message.time} />
     </div>
   );
 }
 
-export default MessageBubble;
+MessageBubble.propTypes = {
+  /** the message to be displayed */
+  message: PropTypes.instanceOf(Message).isRequired,
+
+  /** the message origin (sending/sent/received) */
+  origin: PropTypes.oneOf(["sending", "sent", "received"]).isRequired,
+
+  /** the quoted message, if any */
+  quotedMessage: PropTypes.instanceOf(Message),
+};

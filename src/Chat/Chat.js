@@ -124,11 +124,11 @@ function Chat({
 
   const messageInputRef = useRef(null);
 
-  const [messages, setMessages] = useState([]);
   // messages returned by the server (sent, received, system)
+  const [messages, setMessages] = useState([]);
 
-  const [oldMessages, setOldMessages] = useState([]);
   // old messages (sent before the user joined)
+  const [oldMessages, setOldMessages] = useState([]);
 
   const [messagesById, setMessagesById] = useState({});
 

@@ -1,10 +1,16 @@
+import PropTypes from "prop-types";
+
 import { IconButton } from "@mui/material";
 import MessageBubble from "./MessageBubble";
 import ReplyIcon from "@mui/icons-material/Reply";
-import { MessageTypes } from "./data-structures";
+import { Message, MessageTypes } from "./data-structures";
 import SystemMessageBubble from "./SystemMessageBubble";
 
-function MessageRow({
+/**
+ * Display a row correspondent to a message
+ * (including blank space, quote button, etc.).
+ */
+export default function MessageRow({
   message,
   myParticipantId,
   handleQuote,
@@ -52,4 +58,20 @@ function MessageRow({
   );
 }
 
-export default MessageRow;
+MessageRow.propTypes = {
+  /** the message to be displayed in this row */
+  message: PropTypes.instanceOf(Message).isRequired,
+
+  /** id of the current user (not necessarily the message sender)
+   * (used to show messages with "you" if it's the same user)
+   */
+  myParticipantId: PropTypes.string,
+
+  /** function to be called when the user chooses to
+   * reply to this message
+   */
+  handleQuote: PropTypes.func,
+
+  /** the message quoted by this message */
+  quotedMessage: PropTypes.instanceOf(Message),
+};

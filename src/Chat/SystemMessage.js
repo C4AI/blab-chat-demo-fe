@@ -5,9 +5,10 @@ import i18n from "../i18n";
 
 function SystemMessage({ message, myParticipantId }) {
   let text = "";
-  const name = message["data"]["participant_name"];
+  const name = message.additionalMetadata["participant_name"];
   const me =
-    message["data"] && message["data"]["participant_id"] === myParticipantId;
+    message.additionalMetadata &&
+    message.additionalMetadata["participant_id"] === myParticipantId;
 
   switch (message["event"]) {
     case "participant-joined":

@@ -2,18 +2,11 @@ import { w3cwebsocket as W3CWebSocket } from "websocket";
 
 import axios from "axios";
 import axiosRetry from "axios-retry";
+import { Message } from "./data-structures";
 
 axiosRetry(axios, { retries: 0, retryDelay: axiosRetry.exponentialDelay });
 
 class MessageIO {
-  static MessageTypes = Object.freeze({
-    TEXT: "T",
-    MEDIA: "M",
-    VOICE: "V",
-    ATTACHMENT: "A",
-    SYSTEM: "S",
-  });
-
   static webSocketURL =
     process.env.REACT_APP_CHAT_WS_URL || "ws://" + window.location.hostname;
 
@@ -46,10 +39,7 @@ class MessageIO {
   }
 
   enqueueMessage(message) {
-    this.pending.set(message.local_id, {
-      ...message,
-      sender: { id: this.myParticipantId },
-    });
+    this.pending.set(message.localId, message);
     if (this.onUpdatePendingList)
       this.onUpdatePendingList(Array.from(this.pending.values()));
     if (this.pending.size === 1) this.#sendNextPendingMessage();
@@ -72,7 +62,7 @@ class MessageIO {
       "message" in eventData &&
       eventData["message"].sender &&
       eventData["message"].sender.id === this.myParticipantId &&
-      this.pending.delete(eventData["message"].local_id)
+      this.pending.delete(eventData["message"]["local_id"])
     ) {
       if (this.onUpdatePendingList)
         this.onUpdatePendingList(Array.from(this.pending.values()));
@@ -86,7 +76,7 @@ class MessageIO {
   }
 
   #sendMessage(message) {
-    this.ws.send(JSON.stringify(message));
+    this.ws.send(JSON.stringify(message.asObjectToSend()));
   }
 
   getOldMessages(until, callback, limit = 100) {
@@ -110,7 +100,7 @@ class MessageIO {
         });
     };
     fetch([], 1, (oldMessages) => {
-      callback(oldMessages);
+      callback(oldMessages.map((m) => Message.fromServerData(m)));
     });
   }
 

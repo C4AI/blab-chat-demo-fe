@@ -39,7 +39,7 @@ function MessageBubble({ message, origin, quotedMessage = null }) {
     <div data-msg-id={"msg_" + message.id} className="message-bubble" style={s}>
       {/* sender (only if it is someone else) */}
       {origin === "received" && (
-        <div className="message-sender">{message.sender.name}</div>
+        <div className="message-sender">{message.senderName}</div>
       )}
 
       {/* quoted message */}

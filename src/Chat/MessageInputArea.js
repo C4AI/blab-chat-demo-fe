@@ -1,9 +1,9 @@
-import MessageIO from "./io";
 import { v4 as uuidv4 } from "uuid";
 import SendIcon from "@mui/icons-material/Send";
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { IconButton, InputAdornment, TextField } from "@mui/material";
 import { Trans } from "react-i18next";
+import { Message, MessageTypes } from "./data-structures";
 
 const MessageInputArea = forwardRef(function ({ onSendMessage }, ref) {
   const textFieldRef = useRef(null);
@@ -16,18 +16,15 @@ const MessageInputArea = forwardRef(function ({ onSendMessage }, ref) {
   const [typedMessage, setTypedMessage] = useState("");
 
   function collectMessage() {
-    const t = new Date();
     const text = typedMessage.trim();
     if (!text) return;
-    const message = {
-      type: MessageIO.MessageTypes.TEXT,
-      text: text,
-
-      local_id: uuidv4().replace(/-/g, ""),
-      time: t,
-      timestamp: t.toISOString(),
-    };
-    return message;
+    return new Message(
+      MessageTypes.TEXT,
+      new Date(),
+      uuidv4().replace(/-/g, ""),
+      undefined,
+      text
+    );
   }
 
   function sendMessage() {

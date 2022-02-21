@@ -9,7 +9,7 @@ function QuotedMessage({ message, handleRemoveQuote = null }) {
 
       <div data-msg-id={"msg_" + message.id} className="main-quote">
         {/* sender */}
-        <div className="message-sender">{message.sender.name}</div>
+        <div className="message-sender">{message.senderName}</div>
 
         {/* message contents */}
         {message.text && <div className="message-text">{message.text}</div>}

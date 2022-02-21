@@ -16,6 +16,7 @@ import { Trans } from "react-i18next";
 import QuotedMessage from "./QuotedMessage";
 import MessageIO from "./io";
 import MessageInputArea from "./MessageInputArea";
+import { Message } from "./data-structures";
 
 function RightMenu(onTrigger) {
   const [menuAnchor, setMenuAnchor] = useState(null);
@@ -56,15 +57,12 @@ function Chat({
   const insertMessage = useCallback(
     (messages, newMessage) => {
       if (newMessage.sender && newMessage.sender.id === myParticipantId) {
-        setSentMessageLocalIds((sent) =>
-          new Set(sent).add(newMessage.local_id)
-        );
+        setSentMessageLocalIds((sent) => new Set(sent).add(newMessage.localId));
       }
 
-      newMessage.timestamp = new Date(newMessage.time);
       if (!messages.length) return [newMessage];
       const last = messages[messages.length - 1];
-      if (last.timestamp <= newMessage.timestamp) {
+      if (last.time <= newMessage.time) {
         // most common case: just append the new value
         // (or replace old if repeated)
         return [
@@ -79,7 +77,7 @@ function Chat({
       const older = [],
         newer = [];
       messages.forEach((m) =>
-        (m.timestamp <= newMessage.timestamp ? older : newer).push(m)
+        (m.time <= newMessage.time ? older : newer).push(m)
       );
       if (older.length && older[older.length - 1].id === newMessage.id)
         older.pop();
@@ -112,7 +110,7 @@ function Chat({
     (type, event) => {
       switch (type) {
         case "message":
-          receiveMessage(event);
+          receiveMessage(Message.fromServerData(event));
           break;
         case "state":
           receiveState(event);
@@ -182,10 +180,9 @@ function Chat({
   }, [oldMessages, messages, pendingMessages]);
 
   const sendMessage = (message) => {
-    io.enqueueMessage({
-      ...message,
-      quoted_message_id: quotedMessage ? quotedMessage.id : null,
-    });
+    message.senderId = myParticipantId;
+    message.quotedMessageId = quotedMessage?.id;
+    io.enqueueMessage(message);
     setQuotedMessage(null);
   };
 
@@ -220,19 +217,19 @@ function Chat({
               setQuotedMessage(message);
               messageInputRef.current.focus();
             }}
-            quotedMessage={messagesById[message.quoted_message_id] || null}
+            quotedMessage={messagesById[message.quotedMessageId] || null}
           />
         ))}
         {pendingMessages
           .filter((m) => {
-            return !sentMessageLocalIds.has(m.local_id);
+            return !sentMessageLocalIds.has(m.localId);
           })
           .map((message) => (
             <MessageRow
-              key={message.local_id}
+              key={message.localId}
               message={message}
               myParticipantId={myParticipantId}
-              quotedMessage={messagesById[message.quoted_message_id] || null}
+              quotedMessage={messagesById[message.quotedMessageId] || null}
             />
           ))}
         <div className="after-bubbles" ref={messageListEndRef}></div>

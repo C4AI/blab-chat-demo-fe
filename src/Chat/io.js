@@ -1,5 +1,10 @@
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 
+import axios from "axios";
+import axiosRetry from "axios-retry";
+
+axiosRetry(axios, { retries: 0, retryDelay: axiosRetry.exponentialDelay });
+
 class MessageIO {
   static MessageTypes = Object.freeze({
     TEXT: "T",
@@ -41,7 +46,10 @@ class MessageIO {
   }
 
   enqueueMessage(message) {
-    this.pending.set(message.local_id, message);
+    this.pending.set(message.local_id, {
+      ...message,
+      sender: { id: this.myParticipantId },
+    });
     if (this.onUpdatePendingList)
       this.onUpdatePendingList(Array.from(this.pending.values()));
     if (this.pending.size === 1) this.#sendNextPendingMessage();
@@ -79,6 +87,31 @@ class MessageIO {
 
   #sendMessage(message) {
     this.ws.send(JSON.stringify(message));
+  }
+
+  getOldMessages(until, callback, limit = 100) {
+    let url = `/api/chat/conversations/${this.conversationId}/messages/`;
+    const params = {
+      until: until === "now" ? "now" : until.toISOString(),
+      limit: limit,
+    };
+    const fetch = (prev, page, cb) => {
+      axios
+        .get(url, {
+          params: { ...params, page: page },
+          "axios-retry": {
+            retries: Infinity,
+          },
+        })
+        .then((response) => {
+          const partial = [...prev, ...response.data["results"]];
+          if (response.data["next"]) fetch(partial, page + 1, cb);
+          else cb(partial);
+        });
+    };
+    fetch([], 1, (oldMessages) => {
+      callback(oldMessages);
+    });
   }
 
   close() {

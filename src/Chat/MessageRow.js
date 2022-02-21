@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { IconButton } from "@mui/material";
 import MessageBubble from "./MessageBubble";
 import ReplyIcon from "@mui/icons-material/Reply";
-import { Message, MessageTypes } from "./data-structures";
+import { Message, MessageConditions, MessageTypes } from "./data-structures";
 import SystemMessageBubble from "./SystemMessageBubble";
 
 /**
@@ -16,14 +16,6 @@ export default function MessageRow({
   handleQuote,
   quotedMessage = null,
 }) {
-  const origin =
-    message.type === MessageTypes.SYSTEM
-      ? "system"
-      : myParticipantId && message.senderId === myParticipantId
-      ? message.id
-        ? "sent"
-        : "sending"
-      : "received";
   const replyBtn =
     message["type"] !== MessageTypes.SYSTEM ? (
       <div className="reply-btn">
@@ -36,23 +28,19 @@ export default function MessageRow({
     <div
       className="message-row"
       data-msg-id={"msg_" + message.id}
-      data-origin={origin}
+      data-origin={message.condition}
     >
       <div className="before"></div>
-      {replyBtn && origin !== "received" && replyBtn}
+      {replyBtn && message.condition !== MessageConditions.RECEIVED && replyBtn}
       {message["type"] === MessageTypes.SYSTEM ? (
         <SystemMessageBubble
           message={message}
           myParticipantId={myParticipantId}
         />
       ) : (
-        <MessageBubble
-          message={message}
-          origin={origin}
-          quotedMessage={quotedMessage}
-        />
+        <MessageBubble message={message} quotedMessage={quotedMessage} />
       )}
-      {replyBtn && origin === "received" && replyBtn}
+      {replyBtn && message.condition === MessageConditions.RECEIVED && replyBtn}
       <div className="after"></div>
     </div>
   );

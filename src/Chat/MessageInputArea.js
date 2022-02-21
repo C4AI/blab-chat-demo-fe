@@ -4,7 +4,7 @@ import SendIcon from "@mui/icons-material/Send";
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { IconButton, InputAdornment, TextField } from "@mui/material";
 import { Trans } from "react-i18next";
-import { Message, MessageTypes } from "./data-structures";
+import { Message, MessageConditions, MessageTypes } from "./data-structures";
 
 /**
  * Display elements where the user can insert a message and send it.
@@ -35,6 +35,7 @@ const MessageInputArea = forwardRef(function ({ onSendMessage }, ref) {
     if (!text) return null;
     return new Message(
       MessageTypes.TEXT,
+      MessageConditions.SENDING,
       new Date(),
       uuidv4().replace(/-/g, ""),
       undefined,

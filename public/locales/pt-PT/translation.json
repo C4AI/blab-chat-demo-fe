@@ -1,5 +1,6 @@
 {
   "youJoinedConversation": "Tu entraste na conversa",
   "youLeftConversation": "Tu saíste da conversa",
-  "typeMessage": "Digita uma mensagem"
+  "typeMessage": "Digita uma mensagem",
+  "senderYou": "Tu"
 }

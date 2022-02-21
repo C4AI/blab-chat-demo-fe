@@ -169,7 +169,9 @@ class MessageIO {
         });
     };
     fetch([], 1, (oldMessages) => {
-      callback(oldMessages.map((m) => Message.fromServerData(m)));
+      callback(
+        oldMessages.map((m) => Message.fromServerData(m, this.myParticipantId))
+      );
     });
   }
 

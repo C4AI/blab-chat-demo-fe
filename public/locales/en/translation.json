@@ -10,5 +10,6 @@
   "leftConversation": "<0>{{name}}</0> left the conversation",
   "youLeftConversation": "You left the conversation",
   "typeMessage": "Type a message",
-  "leaveConversation": "Leave"
+  "leaveConversation": "Leave",
+  "senderYou": "You"
 }

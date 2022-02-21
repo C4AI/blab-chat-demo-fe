@@ -2,7 +2,8 @@ import PropTypes from "prop-types";
 
 import { IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { Message } from "./data-structures";
+import { Message, MessageConditions } from "./data-structures";
+import { Trans } from "react-i18next";
 
 /**
  * Display a quoted message.
@@ -16,7 +17,13 @@ export default function QuotedMessage({ message, handleRemoveQuote = null }) {
 
       <div data-msg-id={"msg_" + message.id} className="main-quote">
         {/* sender */}
-        <div className="message-sender">{message.senderName}</div>
+        <div className="message-sender">
+          {message.condition === MessageConditions.RECEIVED ? (
+            message.senderName
+          ) : (
+            <Trans i18nKey="senderYou">You</Trans>
+          )}
+        </div>
 
         {/* message contents */}
         {message.text && <div className="message-text">{message.text}</div>}

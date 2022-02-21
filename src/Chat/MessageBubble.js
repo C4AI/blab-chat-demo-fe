@@ -3,7 +3,7 @@ import { useTheme } from "@emotion/react";
 import { Tooltip } from "@mui/material";
 import i18n from "../i18n";
 import QuotedMessage from "./QuotedMessage";
-import { Message } from "./data-structures";
+import { Message, MessageConditions } from "./data-structures";
 
 /**
  * Display a timestamp on the bottom-right corner.
@@ -37,26 +37,20 @@ BottomRightTimestamp.propTypes = {
 /**
  * Display a bubble with the contents of a message.
  */
-export default function MessageBubble({
-  message,
-  origin,
-  quotedMessage = null,
-}) {
+export default function MessageBubble({ message, quotedMessage = null }) {
   const theme = useTheme();
+  const received = message.condition === MessageConditions.RECEIVED;
   const s = {
-    backgroundColor:
-      origin === "received"
-        ? theme.palette.secondary.light
-        : theme.palette.primary.dark,
-    color: origin === "received" ? "black" : "white",
+    backgroundColor: received
+      ? theme.palette.secondary.light
+      : theme.palette.primary.dark,
+    color: received ? "black" : "white",
   };
 
   return (
     <div data-msg-id={"msg_" + message.id} className="message-bubble" style={s}>
       {/* sender (only if it is someone else) */}
-      {origin === "received" && (
-        <div className="message-sender">{message.senderName}</div>
-      )}
+      {received && <div className="message-sender">{message.senderName}</div>}
 
       {/* quoted message */}
       <QuotedMessage message={quotedMessage} />
@@ -73,9 +67,6 @@ export default function MessageBubble({
 MessageBubble.propTypes = {
   /** the message to be displayed */
   message: PropTypes.instanceOf(Message).isRequired,
-
-  /** the message origin (sending/sent/received) */
-  origin: PropTypes.oneOf(["sending", "sent", "received"]).isRequired,
 
   /** the quoted message, if any */
   quotedMessage: PropTypes.instanceOf(Message),

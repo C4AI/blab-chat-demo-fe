@@ -110,7 +110,7 @@ function Chat({
     (type, event) => {
       switch (type) {
         case "message":
-          receiveMessage(Message.fromServerData(event));
+          receiveMessage(Message.fromServerData(event, myParticipantId));
           break;
         case "state":
           receiveState(event);
@@ -119,7 +119,7 @@ function Chat({
           break;
       }
     },
-    [receiveState, receiveMessage]
+    [receiveState, receiveMessage, myParticipantId]
   );
 
   const messageInputRef = useRef(null);

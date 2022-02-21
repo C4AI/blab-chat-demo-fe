@@ -10,5 +10,6 @@
   "leftConversation": "<0>{{name}}</0> saiu da conversa",
   "youLeftConversation": "Você saiu da conversa",
   "typeMessage": "Digite uma mensagem",
-  "leaveConversation": "Sair"
+  "leaveConversation": "Sair",
+  "senderYou": "Você"
 }

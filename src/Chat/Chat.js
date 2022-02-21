@@ -2,20 +2,20 @@ import {
   Card,
   CardHeader,
   IconButton,
-  InputAdornment,
   Menu,
   MenuItem,
   Paper,
-  TextField,
 } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
+
 import MessageRow from "./MessageRow";
-import SendIcon from "@mui/icons-material/Send";
+
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { v4 as uuidv4 } from "uuid";
+
 import { Trans } from "react-i18next";
 import QuotedMessage from "./QuotedMessage";
 import MessageIO from "./io";
+import MessageInputArea from "./MessageInputArea";
 
 function RightMenu(onTrigger) {
   const [menuAnchor, setMenuAnchor] = useState(null);
@@ -92,6 +92,9 @@ function Chat({
   const receiveMessage = useCallback(
     function (message) {
       setMessages((existing) => insertMessage(existing, message));
+      setFirstMessageTime((first) =>
+        first === null ? new Date(message.time) : first
+      );
       setMessagesById((messagesById) => {
         return { ...messagesById, [message.id]: message };
       });
@@ -126,9 +129,14 @@ function Chat({
   const [messages, setMessages] = useState([]);
   // messages returned by the server (sent, received, system)
 
+  const [oldMessages, setOldMessages] = useState([]);
+  // old messages (sent before the user joined)
+
   const [messagesById, setMessagesById] = useState({});
 
   const [pendingMessages, setPendingMessages] = useState([]);
+
+  const [firstMessageTime, setFirstMessageTime] = useState(null);
 
   const ioRef = useRef(null);
   useEffect(() => {
@@ -146,10 +154,19 @@ function Chat({
   }, [conversationId, myParticipantId, onReceiveEvent]);
   const io = ioRef.current;
 
-  const [sentMessageLocalIds, setSentMessageLocalIds] = useState(new Set());
+  useEffect(() => {
+    if (firstMessageTime !== null) {
+      io.getOldMessages(
+        firstMessageTime,
+        (old) => {
+          setOldMessages(old);
+        },
+        200
+      );
+    }
+  }, [firstMessageTime, io]);
 
-  const [typedMessage, setTypedMessage] = useState("");
-  // current message typed by the user
+  const [sentMessageLocalIds, setSentMessageLocalIds] = useState(new Set());
 
   const messageListEndRef = useRef(null);
 
@@ -162,22 +179,13 @@ function Chat({
 
   useEffect(() => {
     messageListEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, pendingMessages]);
+  }, [oldMessages, messages, pendingMessages]);
 
-  const sendPlainTextMessage = (text) => {
-    const t = new Date();
-    if (!text) return;
-    const message = {
-      type: MessageIO.MessageTypes.TEXT,
-      text: text,
-      sender: { id: myParticipantId },
-      local_id: uuidv4().replace(/-/g, ""),
-      time: t,
-      timestamp: t.toISOString(),
+  const sendMessage = (message) => {
+    io.enqueueMessage({
+      ...message,
       quoted_message_id: quotedMessage ? quotedMessage.id : null,
-    };
-    io.enqueueMessage(message);
-    setTypedMessage("");
+    });
     setQuotedMessage(null);
   };
 
@@ -188,10 +196,7 @@ function Chat({
         <CardHeader
           className="chat-header"
           title={conversationName}
-          subheader={participants
-            .filter((p) => p.is_present)
-            .map((p) => p.name)
-            .join(", ")}
+          subheader={participants.map((p) => p.name).join(", ")}
           action={RightMenu((action) => {
             switch (action) {
               case "leave":
@@ -206,7 +211,7 @@ function Chat({
 
       {/* messages */}
       <Paper variant="outlined" className="message-container">
-        {messages.map((message) => (
+        {[...oldMessages, ...messages].map((message) => (
           <MessageRow
             key={message.id}
             message={message}
@@ -227,12 +232,11 @@ function Chat({
               key={message.local_id}
               message={message}
               myParticipantId={myParticipantId}
+              quotedMessage={messagesById[message.quoted_message_id] || null}
             />
           ))}
         <div className="after-bubbles" ref={messageListEndRef}></div>
       </Paper>
-
-      <div></div>
 
       {/* quoted message */}
       {quotedMessage && (
@@ -246,37 +250,7 @@ function Chat({
       )}
 
       {/* message field */}
-      <TextField
-        inputRef={messageInputRef}
-        value={typedMessage}
-        fullWidth
-        multiline
-        minRows={4}
-        label={<Trans i18nKey="typeMessage">Type a message</Trans>}
-        variant="outlined"
-        onChange={(e) => setTypedMessage(e.target.value)}
-        onKeyPress={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            sendPlainTextMessage(typedMessage.trim());
-            e.preventDefault();
-          }
-        }}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton
-                disabled={!typedMessage.trim()}
-                onClick={(e) => {
-                  sendPlainTextMessage(typedMessage.trim());
-                }}
-                onMouseDown={(e) => e.preventDefault()} // don't lose focus
-              >
-                <SendIcon />
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
-      />
+      <MessageInputArea onSendMessage={sendMessage} ref={messageInputRef} />
     </div>
   );
 }

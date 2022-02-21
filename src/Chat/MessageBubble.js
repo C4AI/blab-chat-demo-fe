@@ -3,7 +3,7 @@ import { Tooltip } from "@mui/material";
 import i18n from "../i18n";
 import QuotedMessage from "./QuotedMessage";
 
-export function BubbleTimestamp({ time }) {
+function BubbleTimestamp({ time }) {
   const t = new Date(time);
   const timeStr = Intl.DateTimeFormat(i18n.language, {
     timeStyle: "short",

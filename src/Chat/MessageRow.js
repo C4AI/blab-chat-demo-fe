@@ -1,8 +1,8 @@
 import { IconButton } from "@mui/material";
 import MessageBubble from "./MessageBubble";
-import SystemMessage from "./SystemMessage";
 import ReplyIcon from "@mui/icons-material/Reply";
 import { MessageTypes } from "./data-structures";
+import SystemMessageBubble from "./SystemMessageBubble";
 
 function MessageRow({
   message,
@@ -35,7 +35,10 @@ function MessageRow({
       <div className="before"></div>
       {replyBtn && origin !== "received" && replyBtn}
       {message["type"] === MessageTypes.SYSTEM ? (
-        <SystemMessage message={message} myParticipantId={myParticipantId} />
+        <SystemMessageBubble
+          message={message}
+          myParticipantId={myParticipantId}
+        />
       ) : (
         <MessageBubble
           message={message}

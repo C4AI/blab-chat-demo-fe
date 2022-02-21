@@ -1,9 +1,14 @@
+import PropTypes from "prop-types";
 import { Tooltip } from "@mui/material";
 import Chip from "@mui/material/Chip";
 import { Trans } from "react-i18next";
 import i18n from "../i18n";
+import { Message } from "./data-structures";
 
-function SystemMessage({ message, myParticipantId }) {
+/**
+ * Display a system message.
+ */
+export default function SystemMessageBubble({ message, myParticipantId }) {
   let text = "";
   const name = message.additionalMetadata["participant_name"];
   const me =
@@ -50,4 +55,11 @@ function SystemMessage({ message, myParticipantId }) {
   );
 }
 
-export default SystemMessage;
+SystemMessageBubble.propTypes = {
+  /** the system message to display */
+  message: PropTypes.instanceOf(Message).isRequired,
+
+  /** id of the current participant
+   *  (used to display messages, e.g. "you left" rather than "Name left") */
+  myParticipantId: PropTypes.string.isRequired,
+};

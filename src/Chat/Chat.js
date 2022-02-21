@@ -180,9 +180,14 @@ function Chat({
   }, [oldMessages, messages, pendingMessages]);
 
   const sendMessage = (message) => {
+    if (!message) return;
     message.senderId = myParticipantId;
     message.quotedMessageId = quotedMessage?.id;
-    io.enqueueMessage(message);
+    const send = (message) => {
+      if (io) io.enqueueMessage(message);
+      else setTimeout(() => send(message), 100);
+    };
+    send(message);
     setQuotedMessage(null);
   };
 

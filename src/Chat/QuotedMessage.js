@@ -2,6 +2,7 @@ import { IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
 function QuotedMessage({ message, handleRemoveQuote = null }) {
+  if (!message) return null;
   return (
     <div className="quoted-message">
       {/* vertical bar on the left */}

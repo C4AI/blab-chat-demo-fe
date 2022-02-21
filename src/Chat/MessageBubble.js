@@ -59,7 +59,7 @@ export default function MessageBubble({
       )}
 
       {/* quoted message */}
-      {quotedMessage && <QuotedMessage message={quotedMessage} />}
+      <QuotedMessage message={quotedMessage} />
 
       {/* message text */}
       {message.text && <div className="message-text">{message.text}</div>}

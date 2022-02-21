@@ -58,9 +58,9 @@ function Main() {
         name: conversationName,
       })
       .then((r) => {
-        setConversationName(r.data.conversation.name);
+        setConversationName(r.data.name);
         setMyParticipantId(r.data.my_participant_id);
-        setConversationId(r.data.conversation.id);
+        setConversationId(r.data.id);
       })
       .catch((e) => console.log(e));
   }
@@ -72,8 +72,8 @@ function Main() {
       })
       .then((r) => {
         setMyParticipantId(r.data.my_participant_id);
-        setConversationName(r.data.conversation.name);
-        setConversationId(r.data.conversation.id);
+        setConversationName(r.data.name);
+        setConversationId(r.data.id);
       })
       .catch((e) => console.log(e));
   }

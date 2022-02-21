@@ -19,7 +19,7 @@ function Lobby({ handleJoining, handleRoomCreation }) {
 
   const refreshConversations = () => {
     axios
-      .get("/api/chat/conversations")
+      .get("/api/chat/conversations/")
       .then((r) => setConversations(r.data.results))
       .catch((e) => console.log(e));
   };

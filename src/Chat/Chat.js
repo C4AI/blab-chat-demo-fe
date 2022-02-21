@@ -158,6 +158,10 @@ function Chat({
         firstMessageTime,
         (old) => {
           setOldMessages(old);
+          setMessagesById((messagesById) => ({
+            ...messagesById,
+            ...Object.fromEntries(old.map((m) => [m.id, m])),
+          }));
         },
         200
       );
@@ -241,15 +245,14 @@ function Chat({
       </Paper>
 
       {/* quoted message */}
-      {quotedMessage && (
-        <QuotedMessage
-          message={quotedMessage}
-          handleRemoveQuote={(e) => {
-            setQuotedMessage(null);
-            messageInputRef.current.focus();
-          }}
-        />
-      )}
+
+      <QuotedMessage
+        message={quotedMessage}
+        handleRemoveQuote={(e) => {
+          setQuotedMessage(null);
+          messageInputRef.current.focus();
+        }}
+      />
 
       {/* message field */}
       <MessageInputArea onSendMessage={sendMessage} ref={messageInputRef} />

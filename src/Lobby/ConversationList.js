@@ -1,5 +1,5 @@
 import { List } from "@mui/material";
-import Conversation from "./Conversation";
+import ConversationRow from "./ConversationRow";
 import NewConversation from "./NewConversation";
 
 function ConversationList({
@@ -13,7 +13,7 @@ function ConversationList({
     <List component="nav">
       {conversations.map((conversation) => {
         return (
-          <Conversation
+          <ConversationRow
             key={conversation.id}
             conversation={conversation}
             isSelected={conversation.id === selectedId}

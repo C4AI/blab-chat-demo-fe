@@ -1,54 +1,16 @@
-import {
-  Card,
-  CardHeader,
-  IconButton,
-  Menu,
-  MenuItem,
-  Paper,
-} from "@mui/material";
+import { Paper } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import MessageRow from "./MessageRow";
 
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-
-import { Trans } from "react-i18next";
 import QuotedMessage from "./QuotedMessage";
 import MessageIO from "./io";
 import MessageInputArea from "./MessageInputArea";
 import { Message } from "./data-structures";
+import ChatHeader from "./ChatHeader";
 
-function RightMenu(onTrigger) {
-  const [menuAnchor, setMenuAnchor] = useState(null);
-
-  return (
-    <div>
-      <IconButton
-        id="right-menu-button"
-        onClick={(e) => setMenuAnchor(e.currentTarget)}
-      >
-        <MoreVertIcon />
-      </IconButton>
-      <Menu
-        anchorEl={menuAnchor}
-        open={Boolean(menuAnchor)}
-        onClose={(e) => setMenuAnchor(null)}
-      >
-        <MenuItem
-          key="leave"
-          onClick={(e) => {
-            onTrigger("leave");
-            setMenuAnchor(null);
-          }}
-        >
-          <Trans i18nKey="leaveConversation">Leave</Trans>
-        </MenuItem>
-      </Menu>
-    </div>
-  );
-}
-
-function Chat({
+/** Displays the chat area, with header, message history and input fields.*/
+export default function Chat({
   conversationId,
   myParticipantId,
   onLeave,
@@ -198,22 +160,19 @@ function Chat({
   return (
     <div className="chat-wrapper">
       {/* header */}
-      <Card className="chat-header">
-        <CardHeader
-          className="chat-header"
-          title={conversationName}
-          subheader={participants.map((p) => p.name).join(", ")}
-          action={RightMenu((action) => {
-            switch (action) {
-              case "leave":
-                onLeave();
-                break;
-              default:
-                break;
-            }
-          })}
-        />
-      </Card>
+      <ChatHeader
+        conversationName={conversationName}
+        participants={participants.filter((p) => p.id !== myParticipantId)}
+        onTrigger={(action) => {
+          switch (action) {
+            case "leave":
+              onLeave();
+              break;
+            default:
+              break;
+          }
+        }}
+      />
 
       {/* messages */}
       <Paper variant="outlined" className="message-container">
@@ -259,5 +218,3 @@ function Chat({
     </div>
   );
 }
-
-export default Chat;

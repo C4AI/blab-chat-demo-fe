@@ -25,6 +25,8 @@ main {
   position: relative;
   text-align: left;
   display: inline-block;
+  flex-shrink: 0;
+  max-width: 70%;
 }
 
 .message-row {
@@ -53,6 +55,7 @@ main {
 .message-row[data-origin="system"] .before,
 .message-row[data-origin="system"] .after {
   flex-grow: 2;
+  min-width: 10%;
 }
 
 .message-row:hover .reply-btn {

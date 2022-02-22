@@ -82,9 +82,9 @@ const MessageInputArea = forwardRef(function (
         endAdornment: (
           <InputAdornment position="end">
             <Stack>
-              {(capabilities.sendImage ||
-                capabilities.sendAudio ||
-                capabilities.sendVideo) && (
+              {(capabilities.maxImageSize ||
+                capabilities.maxAudioSize ||
+                capabilities.maxVideoSize) && (
                 <IconButton
                   // disabled={}
                   // onClick={}
@@ -93,7 +93,7 @@ const MessageInputArea = forwardRef(function (
                   <PermMediaIcon />
                 </IconButton>
               )}
-              {capabilities.sendAttachment && (
+              {capabilities.maxAttachmentSize && (
                 <IconButton
                   // disabled={}
                   // onClick={}
@@ -103,7 +103,7 @@ const MessageInputArea = forwardRef(function (
                 </IconButton>
               )}
             </Stack>
-            {(typedText.trim() || !capabilities.sendVoice) && (
+            {(typedText.trim() || !capabilities.maxVoiceLength) && (
               <IconButton
                 disabled={!typedText.trim()}
                 onClick={(e) => sendMessage(typedText.trim())}
@@ -112,7 +112,7 @@ const MessageInputArea = forwardRef(function (
                 <SendIcon />
               </IconButton>
             )}
-            {!typedText.trim() && capabilities.sendVoice && (
+            {!typedText.trim() && capabilities.maxVoiceLength && (
               <IconButton
               // disabled={}
               // onClick={}

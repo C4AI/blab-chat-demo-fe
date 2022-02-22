@@ -2,16 +2,22 @@ import PropTypes from "prop-types";
 import { v4 as uuidv4 } from "uuid";
 import SendIcon from "@mui/icons-material/Send";
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
-import { IconButton, InputAdornment, TextField } from "@mui/material";
+import { IconButton, InputAdornment, Stack, TextField } from "@mui/material";
 import { Trans } from "react-i18next";
+import MicIcon from "@mui/icons-material/Mic";
 import { Message, MessageConditions, MessageTypes } from "./data-structures";
+import PermMediaIcon from "@mui/icons-material/PermMedia";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 
 /**
  * Display elements where the user can insert a message and send it.
  *
  * @type React.FC<MessageInputAreaPropTypes>
  */
-const MessageInputArea = forwardRef(function ({ onSendMessage }, ref) {
+const MessageInputArea = forwardRef(function (
+  { onSendMessage, capabilities = {} },
+  ref
+) {
   const textFieldRef = useRef(null);
   useImperativeHandle(ref, () => ({
     /** Focus the text field */
@@ -75,15 +81,45 @@ const MessageInputArea = forwardRef(function ({ onSendMessage }, ref) {
       InputProps={{
         endAdornment: (
           <InputAdornment position="end">
-            <IconButton
-              disabled={!typedText.trim()}
-              onClick={(e) => {
-                sendMessage(typedText.trim());
-              }}
-              onMouseDown={(e) => e.preventDefault()} // don't lose focus
-            >
-              <SendIcon />
-            </IconButton>
+            <Stack>
+              {(capabilities.sendImage ||
+                capabilities.sendAudio ||
+                capabilities.sendVideo) && (
+                <IconButton
+                  // disabled={}
+                  // onClick={}
+                  onMouseDown={(e) => e.preventDefault()} // don't lose focus
+                >
+                  <PermMediaIcon />
+                </IconButton>
+              )}
+              {capabilities.sendAttachment && (
+                <IconButton
+                  // disabled={}
+                  // onClick={}
+                  onMouseDown={(e) => e.preventDefault()} // don't lose focus
+                >
+                  <AttachFileIcon />
+                </IconButton>
+              )}
+            </Stack>
+            {(typedText.trim() || !capabilities.sendVoice) && (
+              <IconButton
+                disabled={!typedText.trim()}
+                onClick={(e) => sendMessage(typedText.trim())}
+                onMouseDown={(e) => e.preventDefault()} // don't lose focus
+              >
+                <SendIcon />
+              </IconButton>
+            )}
+            {!typedText.trim() && capabilities.sendVoice && (
+              <IconButton
+              // disabled={}
+              // onClick={}
+              >
+                <MicIcon />
+              </IconButton>
+            )}
           </InputAdornment>
         ),
       }}
@@ -94,6 +130,9 @@ const MessageInputArea = forwardRef(function ({ onSendMessage }, ref) {
 const MessageInputAreaPropTypes = {
   /** called when a message is sent */
   onSendMessage: PropTypes.func.isRequired,
+
+  /** chat capabilities */
+  capabilities: PropTypes.object,
 };
 MessageInputArea.propTypes = MessageInputAreaPropTypes;
 

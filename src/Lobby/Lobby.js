@@ -4,8 +4,11 @@ import { useEffect, useState } from "react";
 import ConversationList from "./ConversationList";
 import axios from "axios";
 import { Trans } from "react-i18next";
+import PropTypes from "prop-types";
 
-function Lobby({ handleJoining, handleRoomCreation }) {
+/** Display a chat lobby, with the existing conversations
+ * and an option to create a new one. */
+export default function Lobby({ handleJoining, handleRoomCreation }) {
   const [conversations, setConversations] = useState([]);
 
   const [selectedId, setSelectedId] = useState(null);
@@ -80,4 +83,16 @@ function Lobby({ handleJoining, handleRoomCreation }) {
   );
 }
 
-export default Lobby;
+Lobby.propTypes = {
+  /** function to be called when the user joins a conversation
+   * (it is called with two arguments: the participant's nickname
+   * and the conversation id)
+   */
+  handleJoining: PropTypes.func.isRequired,
+
+  /** function to be called when the user creates a conversation
+   * (it is called with two arguments: the participant's nickname
+   * and the conversation name)
+   */
+  handleRoomCreation: PropTypes.func.isRequired,
+};

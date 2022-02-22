@@ -1,14 +1,14 @@
 import { Box, TextField } from "@mui/material";
 import Button from "@mui/material/Button";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ConversationList from "./ConversationList";
-import axios from "axios";
 import { Trans } from "react-i18next";
 import PropTypes from "prop-types";
+import LobbyIO from "./io.js";
 
 /** Display a chat lobby, with the existing conversations
  * and an option to create a new one. */
-export default function Lobby({ handleJoining, handleRoomCreation }) {
+export default function Lobby({ onJoinConversation, onCreateConversation }) {
   const [conversations, setConversations] = useState([]);
 
   const [selectedId, setSelectedId] = useState(null);
@@ -20,23 +20,31 @@ export default function Lobby({ handleJoining, handleRoomCreation }) {
 
   const idForNewConversation = "NEW";
 
-  const refreshConversations = () => {
-    axios
-      .get("/api/chat/conversations/")
-      .then((r) => setConversations(r.data.results))
-      .catch((e) => console.log(e));
-  };
+  const [isJoining, setIsJoining] = useState(false);
 
+  const ioRef = useRef(null);
   useEffect(() => {
-    refreshConversations();
-    const interval = setInterval(refreshConversations, 1000);
-    return () => clearInterval(interval);
+    if (!ioRef.current) {
+      ioRef.current = new LobbyIO();
+      ioRef.current.getConversations(setConversations, console.log, 1000);
+    }
+    const s = ioRef.current;
+
+    return () => {
+      s && s.close();
+    };
   }, []);
+  const io = ioRef.current;
 
   useEffect(() => {
     if (nickname) localStorage.setItem(nicknameKey, nickname);
     else localStorage.removeItem(nicknameKey);
   }, [nickname]);
+
+  const onFailEnteringConversation = (e) => {
+    console.log(e);
+    setIsJoining(false);
+  };
 
   return (
     <Box sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
@@ -59,26 +67,42 @@ export default function Lobby({ handleJoining, handleRoomCreation }) {
         onChange={(e) => setNickname(e.target.value)}
       />
 
-      <Button
-        className="join-chat-btn"
-        variant="contained"
-        onClick={() =>
-          selectedId === idForNewConversation
-            ? handleRoomCreation(nickname, newConversationName)
-            : handleJoining(nickname, selectedId)
-        }
-        disabled={
-          !selectedId ||
-          (selectedId === "NEW" && !newConversationName) ||
-          !nickname
-        }
-      >
-        {selectedId !== idForNewConversation ? (
-          <Trans i18nKey="joinConversation">Join conversation</Trans>
-        ) : (
-          <Trans i18nKey="createConversation">Create conversation</Trans>
-        )}
-      </Button>
+      <div class="join-chat-btn-wrapper">
+        <Button
+          className="join-chat-btn"
+          variant="contained"
+          onClick={() => {
+            setIsJoining(true);
+            if (selectedId === idForNewConversation) {
+              io.createConversation(
+                nickname,
+                newConversationName,
+                onCreateConversation,
+                onFailEnteringConversation
+              );
+            } else {
+              io.joinConversation(
+                nickname,
+                selectedId,
+                onJoinConversation,
+                onFailEnteringConversation
+              );
+            }
+          }}
+          disabled={
+            !selectedId ||
+            (selectedId === "NEW" && !newConversationName) ||
+            !nickname ||
+            isJoining
+          }
+        >
+          {selectedId !== idForNewConversation ? (
+            <Trans i18nKey="joinConversation">Join conversation</Trans>
+          ) : (
+            <Trans i18nKey="createConversation">Create conversation</Trans>
+          )}
+        </Button>
+      </div>
     </Box>
   );
 }
@@ -88,11 +112,11 @@ Lobby.propTypes = {
    * (it is called with two arguments: the participant's nickname
    * and the conversation id)
    */
-  handleJoining: PropTypes.func.isRequired,
+  onJoinConversation: PropTypes.func.isRequired,
 
   /** function to be called when the user creates a conversation
    * (it is called with two arguments: the participant's nickname
    * and the conversation name)
    */
-  handleRoomCreation: PropTypes.func.isRequired,
+  onCreateConversation: PropTypes.func.isRequired,
 };

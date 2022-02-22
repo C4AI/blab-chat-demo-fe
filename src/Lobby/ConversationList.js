@@ -51,8 +51,8 @@ ConversationList.propTypes = {
     })
   ),
 
-  /** currently selected conversation id */
-  selectedId: PropTypes.bool.isRequired,
+  /** currently selected conversation id, or null if selection is empty */
+  selectedId: PropTypes.string,
 
   /** fake id, used if "new conversation" is selected */
   idForNewConversation: PropTypes.string.isRequired,

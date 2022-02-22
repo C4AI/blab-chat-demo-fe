@@ -1,4 +1,5 @@
 import { ListItemButton, ListItemText, Radio, TextField } from "@mui/material";
+import PropTypes from "prop-types";
 import { Trans } from "react-i18next";
 
 function NewConversation({ isSelected, handleSelect, handleNameChange }) {
@@ -22,3 +23,19 @@ function NewConversation({ isSelected, handleSelect, handleNameChange }) {
 }
 
 export default NewConversation;
+
+NewConversation.propTypes = {
+  /** whether the conversation is selected */
+  isSelected: PropTypes.bool,
+
+  /** function called when the user (de-)selects the conversation
+   * (it is called with a boolean argument indicating if it was
+   * selected)
+   */
+  handleSelect: PropTypes.func,
+
+  /** function called when the name of the new conversation changes
+   * (it is called with the new name in the first argument)
+   */
+  handleNameChange: PropTypes.func,
+};

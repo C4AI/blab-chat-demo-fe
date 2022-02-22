@@ -28,8 +28,8 @@ ConversationRow.propTypes = {
   }).isRequired,
 
   /** whether the conversation is selected */
-
   isSelected: PropTypes.bool,
+
   /** function called when the user (de-)selects the conversation
    * (it is called with a boolean argument indicating if it was
    * selected)

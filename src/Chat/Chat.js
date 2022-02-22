@@ -2,6 +2,7 @@ import { Paper } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import MessageRow from "./MessageRow";
+import PropTypes from "prop-types";
 
 import QuotedMessage from "./QuotedMessage";
 import MessageIO from "./io";
@@ -9,7 +10,7 @@ import MessageInputArea from "./MessageInputArea";
 import { Message } from "./data-structures";
 import ChatHeader from "./ChatHeader";
 
-/** Displays the chat area, with header, message history and input fields.*/
+/** Display the chat area, with header, message history and input fields.*/
 export default function Chat({
   conversationId,
   myParticipantId,
@@ -142,7 +143,10 @@ export default function Chat({
   const [quotedMessage, setQuotedMessage] = useState(null);
 
   useEffect(() => {
-    messageListEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    setTimeout(
+      () => messageListEndRef.current?.scrollIntoView({ behavior: "smooth" }),
+      100
+    );
   }, [oldMessages, messages, pendingMessages]);
 
   const sendMessage = (message) => {
@@ -218,3 +222,17 @@ export default function Chat({
     </div>
   );
 }
+
+Chat.propTypes = {
+  /** id of the conversation */
+  conversationId: PropTypes.string.isRequired,
+
+  /** id of the current participant in the conversation*/
+  myParticipantId: PropTypes.string.isRequired,
+
+  /** function called when user leaves the conversation */
+  onLeave: PropTypes.func.isRequired,
+
+  /** conversation title */
+  initialConversationName: PropTypes.string,
+};

@@ -67,7 +67,7 @@ export default function Lobby({ onJoinConversation, onCreateConversation }) {
         onChange={(e) => setNickname(e.target.value)}
       />
 
-      <div class="join-chat-btn-wrapper">
+      <div className="join-chat-btn-wrapper">
         <Button
           className="join-chat-btn"
           variant="contained"

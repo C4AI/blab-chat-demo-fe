@@ -4,13 +4,19 @@ import Chip from "@mui/material/Chip";
 import { Trans } from "react-i18next";
 import i18n from "../i18n";
 import { Message } from "./data-structures";
+import { Participant } from "../Lobby/data-structures";
 
 /**
  * Display a system message.
  */
-export default function SystemMessageBubble({ message, myParticipantId }) {
+export default function SystemMessageBubble({
+  message,
+  participants,
+  myParticipantId,
+}) {
   let text = "";
-  const name = message.additionalMetadata["participant_name"];
+  const participantId = message.additionalMetadata["participant_id"];
+  const name = participantId ? participants[participantId].name : null;
   const me =
     message.additionalMetadata &&
     message.additionalMetadata["participant_id"] === myParticipantId;
@@ -58,6 +64,10 @@ export default function SystemMessageBubble({ message, myParticipantId }) {
 SystemMessageBubble.propTypes = {
   /** the system message to display */
   message: PropTypes.instanceOf(Message).isRequired,
+
+  /** conversation participants (id -> Participant) */
+  participants: PropTypes.objectOf(PropTypes.instanceOf(Participant).isRequired)
+    .isRequired,
 
   /** id of the current participant
    *  (used to display messages, e.g. "you left" rather than "Name left") */

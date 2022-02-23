@@ -37,6 +37,7 @@ export default function MessageRow({
       {message["type"] === MessageTypes.SYSTEM ? (
         <SystemMessageBubble
           message={message}
+          participants={participants}
           myParticipantId={myParticipantId}
         />
       ) : (

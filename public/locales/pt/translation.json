@@ -12,5 +12,6 @@
   "typeMessage": "Digite uma mensagem",
   "leaveConversation": "Sair",
   "senderYou": "Você",
-  "changeParticipantName": "Alterar meu nome"
+  "changeParticipantName": "Alterar meu nome",
+  "inviteBots": "Convidar bots"
 }

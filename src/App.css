@@ -1,7 +1,6 @@
 main {
   margin-top: min(10px, 5vh);
   margin-bottom: min(10px, 5vh);
-  /* border: 1px solid red; */
 }
 
 .chat-wrapper {
@@ -154,5 +153,9 @@ main {
 
 .join-chat-btn-wrapper {
   text-align: center;
+  margin-top: 1em;
+}
+
+.bot-selector-wrapper {
   margin-top: 1em;
 }

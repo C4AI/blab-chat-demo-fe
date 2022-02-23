@@ -69,20 +69,51 @@ export default class LobbyIO {
   }
 
   /**
+   * Retrieve the list of available bots.
+
+   * @param {function(Array<string>)} callback
+   *   the function to be called when the list of bots is retrieved
+   * @param {number} limit the maximum number of bots to fetch
+   */
+  getBots(callback, limit = 100) {
+    let url = `/api/chat/bots/`;
+    const params = {
+      limit,
+    };
+    const fetch = (prev, page, cb) => {
+      axios
+        .get(url, {
+          params: { ...params, page: page },
+          "axios-retry": {
+            retries: Infinity,
+          },
+        })
+        .then((response) => {
+          const partial = [...prev, ...response.data["results"]];
+          if (response.data["next"]) fetch(partial, page + 1, cb);
+          else cb(partial);
+        });
+    };
+    fetch([], 1, callback);
+  }
+
+  /**
    * Create a conversation.
    * @param {string} nickname participant's name
    * @param {string} conversationName conversation title
+   * @param {Array<string>} bots bots to include in the conversation
    * @param {enterConversationCallback} callback function to call if the
    *      conversation is created successfully (conversation data is
    *      passed in the first argument)
    * @param {errorCallback} failCallback function to call if the
    *      conversation creation fails (error is passed in the first argument)
    */
-  createConversation(nickname, conversationName, callback, failCallback) {
+  createConversation(nickname, conversationName, bots, callback, failCallback) {
     axios
       .post("/api/chat/conversations/", {
         nickname: nickname,
         name: conversationName,
+        bots: bots,
       })
       .then((r) => callback(Conversation.fromServerData(r.data)))
       .catch((e) => failCallback && failCallback(e));

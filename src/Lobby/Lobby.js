@@ -5,6 +5,7 @@ import ConversationList from "./ConversationList";
 import { Trans } from "react-i18next";
 import PropTypes from "prop-types";
 import LobbyIO from "./io.js";
+import BotSelector from "./BotSelector";
 
 /** Display a chat lobby, with the existing conversations
  * and an option to create a new one. */
@@ -18,15 +19,20 @@ export default function Lobby({ onJoinConversation, onCreateConversation }) {
 
   const [nickname, setNickname] = useState(localStorage.getItem(nicknameKey));
 
+  const [selectedBots, setSelectedBots] = useState([]);
+
   const idForNewConversation = "NEW";
 
   const [isJoining, setIsJoining] = useState(false);
+
+  const [bots, setBots] = useState([]);
 
   const ioRef = useRef(null);
   useEffect(() => {
     if (!ioRef.current) {
       ioRef.current = new LobbyIO();
       ioRef.current.getConversations(setConversations, console.log, 1000);
+      ioRef.current.getBots(setBots, 1000);
     }
     const s = ioRef.current;
 
@@ -67,6 +73,12 @@ export default function Lobby({ onJoinConversation, onCreateConversation }) {
         onChange={(e) => setNickname(e.target.value)}
       />
 
+      {selectedId === idForNewConversation && (
+        <div className="bot-selector-wrapper">
+          <BotSelector bots={bots} onChangeSelection={setSelectedBots} />
+        </div>
+      )}
+
       <div className="join-chat-btn-wrapper">
         <Button
           className="join-chat-btn"
@@ -77,6 +89,7 @@ export default function Lobby({ onJoinConversation, onCreateConversation }) {
               io.createConversation(
                 nickname,
                 newConversationName,
+                selectedBots,
                 onCreateConversation,
                 onFailEnteringConversation
               );

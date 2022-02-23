@@ -12,5 +12,6 @@
   "typeMessage": "Type a message",
   "leaveConversation": "Leave",
   "senderYou": "You",
-  "changeParticipantName": "Change my name"
+  "changeParticipantName": "Change my name",
+  "inviteBots": "Invite bots"
 }

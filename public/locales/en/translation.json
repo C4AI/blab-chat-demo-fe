@@ -13,5 +13,9 @@
   "leaveConversation": "Leave",
   "senderYou": "You",
   "changeParticipantName": "Change my name",
-  "inviteBots": "Invite bots"
+  "inviteBots": "Invite bots",
+  "sendMessage": "Send message",
+  "insertAttachment": "Attach file",
+  "insertMedia": "Insert media",
+  "recordVoice": "Record voice"
 }

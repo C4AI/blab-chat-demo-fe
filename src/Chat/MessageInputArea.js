@@ -2,7 +2,13 @@ import PropTypes from "prop-types";
 import { v4 as uuidv4 } from "uuid";
 import SendIcon from "@mui/icons-material/Send";
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
-import { IconButton, InputAdornment, Stack, TextField } from "@mui/material";
+import {
+  IconButton,
+  InputAdornment,
+  Stack,
+  TextField,
+  Tooltip,
+} from "@mui/material";
 import { Trans } from "react-i18next";
 import MicIcon from "@mui/icons-material/Mic";
 import { Message, MessageConditions, MessageTypes } from "./data-structures";
@@ -62,6 +68,11 @@ const MessageInputArea = forwardRef(function (
     onSendMessage(message);
   }
 
+  const sendLbl = <Trans i18nKey="sendMessage">Send</Trans>;
+  const insertMediaLbl = <Trans i18nKey="insertMedia">Insert media</Trans>;
+  const insertFileLbl = <Trans i18nKey="insertAttachment">Insert file</Trans>;
+  const insertVoiceLbl = <Trans i18nKey="recordVoice">Record voice</Trans>;
+
   return (
     <TextField
       inputRef={textFieldRef}
@@ -85,40 +96,60 @@ const MessageInputArea = forwardRef(function (
               {(capabilities.maxImageSize ||
                 capabilities.maxAudioSize ||
                 capabilities.maxVideoSize) && (
-                <IconButton
-                  // disabled={}
-                  // onClick={}
-                  onMouseDown={(e) => e.preventDefault()} // don't lose focus
-                >
-                  <PermMediaIcon />
-                </IconButton>
+                <Tooltip title={insertMediaLbl}>
+                  <span>
+                    <IconButton
+                      aria-label={insertMediaLbl}
+                      // disabled={}
+                      // onClick={}
+                      onMouseDown={(e) => e.preventDefault()} // don't lose focus
+                    >
+                      <PermMediaIcon />
+                    </IconButton>
+                  </span>
+                </Tooltip>
               )}
               {capabilities.maxAttachmentSize && (
-                <IconButton
-                  // disabled={}
-                  // onClick={}
-                  onMouseDown={(e) => e.preventDefault()} // don't lose focus
-                >
-                  <AttachFileIcon />
-                </IconButton>
+                <Tooltip title={insertFileLbl}>
+                  <span>
+                    <IconButton
+                      aria-label={insertFileLbl}
+                      // disabled={}
+                      // onClick={}
+                      onMouseDown={(e) => e.preventDefault()} // don't lose focus
+                    >
+                      <AttachFileIcon />
+                    </IconButton>
+                  </span>
+                </Tooltip>
               )}
             </Stack>
             {(typedText.trim() || !capabilities.maxVoiceLength) && (
-              <IconButton
-                disabled={!typedText.trim()}
-                onClick={(e) => sendMessage(typedText.trim())}
-                onMouseDown={(e) => e.preventDefault()} // don't lose focus
-              >
-                <SendIcon />
-              </IconButton>
+              <Tooltip title={sendLbl}>
+                <span>
+                  <IconButton
+                    aria-label={sendLbl}
+                    disabled={!typedText.trim()}
+                    onClick={(e) => sendMessage(typedText.trim())}
+                    onMouseDown={(e) => e.preventDefault()} // don't lose focus
+                  >
+                    <SendIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
             )}
             {!typedText.trim() && capabilities.maxVoiceLength && (
-              <IconButton
-              // disabled={}
-              // onClick={}
-              >
-                <MicIcon />
-              </IconButton>
+              <Tooltip title={insertVoiceLbl}>
+                <span>
+                  <IconButton
+                    aria-label={insertVoiceLbl}
+                    // disabled={}
+                    // onClick={}
+                  >
+                    <MicIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
             )}
           </InputAdornment>
         ),

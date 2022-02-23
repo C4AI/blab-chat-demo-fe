@@ -5,6 +5,7 @@ import Lobby from "./Lobby/Lobby";
 import Chat from "./Chat/Chat";
 
 import { useTranslation } from "react-i18next";
+import LobbyIO from "./Lobby/io";
 
 /**
  * Display the BLAB chatbot component.
@@ -14,7 +15,6 @@ export default function BlabMain() {
 
   const conversationIdKey = "conversationId";
   const myParticipantIdKey = "myParticipantId";
-  const conversationNameKey = "conversationName";
 
   const [conversationId, setConversationId] = useState(
     localStorage.getItem(conversationIdKey)
@@ -24,20 +24,12 @@ export default function BlabMain() {
     localStorage.getItem(myParticipantIdKey)
   );
 
-  const [conversationName, setConversationName] = useState(
-    localStorage.getItem(conversationNameKey)
-  );
+  const [conversation, setConversation] = useState(null);
 
   useEffect(() => {
     if (conversationId) localStorage.setItem(conversationIdKey, conversationId);
     else localStorage.removeItem(conversationIdKey);
   }, [conversationId]);
-
-  useEffect(() => {
-    if (conversationName)
-      localStorage.setItem(conversationNameKey, conversationName);
-    else localStorage.removeItem(conversationNameKey);
-  }, [conversationName]);
 
   useEffect(() => {
     if (myParticipantId)
@@ -46,26 +38,39 @@ export default function BlabMain() {
   }, [myParticipantId]);
 
   function enterConversation(conversation) {
-    setMyParticipantId(conversation.my_participant_id);
-    setConversationName(conversation.name);
+    setMyParticipantId(conversation.myParticipantId);
+    setConversation(conversation);
     setConversationId(conversation.id);
   }
+
+  useEffect(() => {
+    if (conversationId && !conversation) {
+      new LobbyIO().joinConversation("", conversationId, enterConversation);
+    }
+  }, [conversationId, conversation]);
 
   return (
     <Container component="main" maxWidth="xs">
       {process.env.REACT_APP_CHAT_MODE === "rooms" ? (
-        !conversationId ? (
-          <Lobby
-            onCreateConversation={enterConversation}
-            onJoinConversation={enterConversation}
-          />
+        !conversation ? (
+          !conversationId ? (
+            <Lobby
+              onCreateConversation={enterConversation}
+              onJoinConversation={enterConversation}
+            />
+          ) : (
+            <div>
+              {/* this is rendered when the user was 
+              previously in a conversation, but the
+              conversation data hasn't been loaded yet */}
+            </div>
+          )
         ) : (
           <Chat
-            conversationId={conversationId}
-            myParticipantId={myParticipantId}
-            initialConversationName={conversationName}
+            conversation={conversation}
             onLeave={() => {
               setConversationId(null);
+              setConversation(null);
               setMyParticipantId(null);
             }}
           />

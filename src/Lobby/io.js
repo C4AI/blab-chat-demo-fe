@@ -1,5 +1,6 @@
 import axios from "axios";
 import axiosRetry from "axios-retry";
+import { Conversation } from "./data-structures";
 
 axiosRetry(axios, { retries: 0, retryDelay: axiosRetry.exponentialDelay });
 
@@ -83,7 +84,7 @@ export default class LobbyIO {
         nickname: nickname,
         name: conversationName,
       })
-      .then((r) => callback(r.data))
+      .then((r) => callback(Conversation.fromServerData(r.data)))
       .catch((e) => failCallback && failCallback(e));
   }
 
@@ -92,7 +93,7 @@ export default class LobbyIO {
    * @param {string} nickname participant's name
    * @param {string} conversationId conversation id
    * @param {enterConversationCallback} callback function to call if the
-   *      conversation is joined successfully (conversation data is
+   *      conversation is joined successfully (conversation is
    *      passed in the first argument)
    * @param {errorCallback} failCallback function to call if the
    *      conversation joining fails (error is passed in the first argument)
@@ -102,7 +103,7 @@ export default class LobbyIO {
       .post("/api/chat/conversations/" + conversationId + "/join/", {
         nickname: nickname,
       })
-      .then((r) => callback(r.data))
+      .then((r) => callback(Conversation.fromServerData(r.data)))
       .catch((e) => failCallback && failCallback(e));
   }
 

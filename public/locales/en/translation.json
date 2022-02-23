@@ -11,5 +11,6 @@
   "youLeftConversation": "You left the conversation",
   "typeMessage": "Type a message",
   "leaveConversation": "Leave",
-  "senderYou": "You"
+  "senderYou": "You",
+  "changeParticipantName": "Change my name"
 }

@@ -5,6 +5,7 @@ import MessageBubble from "./MessageBubble";
 import ReplyIcon from "@mui/icons-material/Reply";
 import { Message, MessageConditions, MessageTypes } from "./data-structures";
 import SystemMessageBubble from "./SystemMessageBubble";
+import { Participant } from "../Lobby/data-structures";
 
 /**
  * Display a row correspondent to a message
@@ -13,6 +14,7 @@ import SystemMessageBubble from "./SystemMessageBubble";
 export default function MessageRow({
   message,
   myParticipantId,
+  participants,
   handleQuote,
   quotedMessage = null,
 }) {
@@ -38,7 +40,11 @@ export default function MessageRow({
           myParticipantId={myParticipantId}
         />
       ) : (
-        <MessageBubble message={message} quotedMessage={quotedMessage} />
+        <MessageBubble
+          message={message}
+          participants={participants}
+          quotedMessage={quotedMessage}
+        />
       )}
       {replyBtn && message.condition === MessageConditions.RECEIVED && replyBtn}
       <div className="after"></div>
@@ -54,6 +60,10 @@ MessageRow.propTypes = {
    * (used to show messages with "you" if it's the same user)
    */
   myParticipantId: PropTypes.string,
+
+  /** conversation participants (id -> Participant) */
+  participants: PropTypes.objectOf(PropTypes.instanceOf(Participant).isRequired)
+    .isRequired,
 
   /** function to be called when the user chooses to
    * reply to this message

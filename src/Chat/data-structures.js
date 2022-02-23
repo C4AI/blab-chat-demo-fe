@@ -11,7 +11,7 @@
  *  (has `event`, may have `additional_metadata`)
  */
 export const MessageTypes = Object.freeze({
-  TEXT: "T" /** text messages */,
+  TEXT: "T",
   MEDIA: "M",
   VOICE: "V",
   ATTACHMENT: "A",
@@ -49,7 +49,6 @@ export class Message {
    *    transcription (for voice messages)
    *    or caption (for attachment and media messages)
    * @param {string} senderId sender's id
-   * @param {string} senderName sender's display name
    * @param {string} downloadUrl download URL
    *    (for voice, media and attachment messages)
    * @param {string} quotedMessageId id of the quoted message
@@ -65,7 +64,6 @@ export class Message {
     id,
     text,
     senderId,
-    senderName,
     downloadUrl,
     quotedMessageId,
     event,
@@ -78,7 +76,6 @@ export class Message {
     this.id = id;
     this.text = text;
     this.senderId = senderId;
-    this.senderName = senderName;
     this.downloadUrl = downloadUrl;
     this.quotedMessageId = quotedMessageId;
     this.event = event;
@@ -101,7 +98,7 @@ export class Message {
   }
 
   /**
-   * Build a `Message` instance from data returned by the server
+   * Build a {@link Message} instance from data returned by the server
    *
    * @param {Object} m message data (as received from the server)
    * @param {string} m.type message type (see {@link MessageTypes})
@@ -112,8 +109,7 @@ export class Message {
    *    transcription (for voice messages)
    *    or caption (for attachment and media messages)
    * @param {Object} m.sender who sent the message
-   * @param {string} m.sender.id sender's id
-   * @param {string} m.sender.name sender's display name
+   * @param {string} m.sender_id sender's id
    * @param {string} m.download_url download URL
    *    (for voice, media and attachment messages)
    * @param {string} m.quoted_message_id if of the quoted message
@@ -122,22 +118,21 @@ export class Message {
    *    (for system messages)
    * @param {string} myParticipantId id of the current participant
    *    (used to obtain origin, see {@link MessageConditions})
-   * @returns an instance of `Message` using the provided data
+   * @returns an instance of {@link Message} using the provided data
    */
   static fromServerData(m, myParticipantId) {
     return new Message(
       m.type,
       m.type === MessageTypes.SYSTEM
         ? MessageConditions.SYSTEM
-        : myParticipantId && m.sender?.id === myParticipantId
+        : myParticipantId && m.sender_id === myParticipantId
         ? MessageConditions.SENT
         : MessageConditions.RECEIVED,
       m.time,
       m.local_id,
       m.id,
       m.text,
-      m.sender?.id,
-      m.sender?.name,
+      m.sender_id,
       m.download_url,
       m.quoted_message_id,
       m.event,

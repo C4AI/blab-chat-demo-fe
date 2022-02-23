@@ -36,7 +36,7 @@ ChatHeader.propTypes = {
   ),
 
   /** function called when an action is triggered
-   * (currently, only "leave" is available)
+   * (currently, only "leave" and "changeMyName" are available)
    */
   onTrigger: PropTypes.func,
 };

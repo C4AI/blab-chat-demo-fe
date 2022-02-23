@@ -11,5 +11,6 @@
   "youLeftConversation": "Você saiu da conversa",
   "typeMessage": "Digite uma mensagem",
   "leaveConversation": "Sair",
-  "senderYou": "Você"
+  "senderYou": "Você",
+  "changeParticipantName": "Alterar meu nome"
 }

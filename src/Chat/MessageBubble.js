@@ -4,6 +4,7 @@ import { Tooltip } from "@mui/material";
 import i18n from "../i18n";
 import QuotedMessage from "./QuotedMessage";
 import { Message, MessageConditions } from "./data-structures";
+import { Participant } from "../Lobby/data-structures";
 
 /**
  * Display a timestamp on the bottom-right corner.
@@ -37,7 +38,11 @@ BottomRightTimestamp.propTypes = {
 /**
  * Display a bubble with the contents of a message.
  */
-export default function MessageBubble({ message, quotedMessage = null }) {
+export default function MessageBubble({
+  message,
+  participants,
+  quotedMessage = null,
+}) {
   const theme = useTheme();
   const received = message.condition === MessageConditions.RECEIVED;
   const s = {
@@ -50,10 +55,14 @@ export default function MessageBubble({ message, quotedMessage = null }) {
   return (
     <div data-msg-id={"msg_" + message.id} className="message-bubble" style={s}>
       {/* sender (only if it is someone else) */}
-      {received && <div className="message-sender">{message.senderName}</div>}
+      {received && (
+        <div className="message-sender">
+          {participants[message.senderId].name}
+        </div>
+      )}
 
       {/* quoted message */}
-      <QuotedMessage message={quotedMessage} />
+      <QuotedMessage message={quotedMessage} participants={participants} />
 
       {/* message text */}
       {message.text && <div className="message-text">{message.text}</div>}
@@ -67,6 +76,10 @@ export default function MessageBubble({ message, quotedMessage = null }) {
 MessageBubble.propTypes = {
   /** the message to be displayed */
   message: PropTypes.instanceOf(Message).isRequired,
+
+  /** conversation participants (id -> Participant) */
+  participants: PropTypes.objectOf(PropTypes.instanceOf(Participant).isRequired)
+    .isRequired,
 
   /** the quoted message, if any */
   quotedMessage: PropTypes.instanceOf(Message),

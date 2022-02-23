@@ -112,8 +112,7 @@ class MessageIO {
         this.onReceiveEvent(type, evt);
     if (
       "message" in eventData &&
-      eventData["message"].sender &&
-      eventData["message"].sender.id === this.myParticipantId &&
+      eventData["message"]["sender_id"] === this.myParticipantId &&
       this.pending.delete(eventData["message"]["local_id"])
     ) {
       if (this.onUpdatePendingList)
@@ -173,6 +172,21 @@ class MessageIO {
         oldMessages.map((m) => Message.fromServerData(m, this.myParticipantId))
       );
     });
+  }
+
+  changeParticipantName(name) {
+    let url =
+      `/api/chat/conversations/${this.conversationId}/` +
+      `participants/${this.myParticipantId}/`;
+    axios.patch(
+      url,
+      { name },
+      {
+        "axios-retry": {
+          retries: Infinity,
+        },
+      }
+    );
   }
 
   /**

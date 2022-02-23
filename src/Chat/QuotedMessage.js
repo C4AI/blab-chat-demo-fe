@@ -4,11 +4,16 @@ import { IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { Message, MessageConditions } from "./data-structures";
 import { Trans } from "react-i18next";
+import { Participant } from "../Lobby/data-structures";
 
 /**
  * Display a quoted message.
  */
-export default function QuotedMessage({ message, handleRemoveQuote = null }) {
+export default function QuotedMessage({
+  message,
+  participants,
+  handleRemoveQuote = null,
+}) {
   if (!message) return null;
   return (
     <div className="quoted-message">
@@ -19,7 +24,7 @@ export default function QuotedMessage({ message, handleRemoveQuote = null }) {
         {/* sender */}
         <div className="message-sender">
           {message.condition === MessageConditions.RECEIVED ? (
-            message.senderName
+            participants[message.senderId].name
           ) : (
             <Trans i18nKey="senderYou">You</Trans>
           )}
@@ -42,6 +47,10 @@ export default function QuotedMessage({ message, handleRemoveQuote = null }) {
 QuotedMessage.propTypes = {
   /** the quoted message to be displayed (if absent, nothing is rendered) */
   message: PropTypes.instanceOf(Message),
+
+  /** conversation participants (id -> Participant) */
+  participants: PropTypes.objectOf(PropTypes.instanceOf(Participant).isRequired)
+    .isRequired,
 
   /** function to be called when the user removes the quote by clicking "x"
    * (if the function is not present, the "x" button is not shown)

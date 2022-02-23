@@ -8,18 +8,17 @@ import QuotedMessage from "./QuotedMessage";
 import MessageIO from "./io";
 import MessageInputArea from "./MessageInputArea";
 import { Message } from "./data-structures";
+import { Conversation, Participant } from "../Lobby/data-structures";
 import ChatHeader from "./ChatHeader";
 
 /** Display the chat area, with header, message history and input fields.*/
-export default function Chat({
-  conversationId,
-  myParticipantId,
-  onLeave,
-  initialConversationName = "",
-}) {
+export default function Chat({ conversation, onLeave }) {
   const insertMessage = useCallback(
     (messages, newMessage) => {
-      if (newMessage.sender && newMessage.sender.id === myParticipantId) {
+      if (
+        newMessage.sender &&
+        newMessage.senderId === conversation.myParticipantId
+      ) {
         setSentMessageLocalIds((sent) => new Set(sent).add(newMessage.localId));
       }
 
@@ -47,7 +46,7 @@ export default function Chat({
       if (newer.length && newer[0].id === newMessage.id) newer.shift();
       return [...older, newMessage, ...newer];
     },
-    [myParticipantId]
+    [conversation.myParticipantId]
   );
 
   const receiveMessage = useCallback(
@@ -64,7 +63,8 @@ export default function Chat({
   );
 
   const receiveState = useCallback(function (state) {
-    if ("participants" in state) setParticipants(state["participants"]);
+    if ("participants" in state)
+      setParticipants(state["participants"].map(Participant.fromServerData));
     if ("conversation_name" in state)
       setConversationName(state["conversation_name"]);
   }, []);
@@ -73,7 +73,9 @@ export default function Chat({
     (type, event) => {
       switch (type) {
         case "message":
-          receiveMessage(Message.fromServerData(event, myParticipantId));
+          receiveMessage(
+            Message.fromServerData(event, conversation.myParticipantId)
+          );
           break;
         case "state":
           receiveState(event);
@@ -82,7 +84,7 @@ export default function Chat({
           break;
       }
     },
-    [receiveState, receiveMessage, myParticipantId]
+    [receiveState, receiveMessage, conversation.myParticipantId]
   );
 
   const messageInputRef = useRef(null);
@@ -103,8 +105,8 @@ export default function Chat({
   useEffect(() => {
     if (!ioRef.current)
       ioRef.current = new MessageIO(
-        conversationId,
-        myParticipantId,
+        conversation.id,
+        conversation.myParticipantId,
         onReceiveEvent,
         setPendingMessages
       );
@@ -112,7 +114,7 @@ export default function Chat({
     return () => {
       s && s.close();
     };
-  }, [conversationId, myParticipantId, onReceiveEvent]);
+  }, [conversation.id, conversation.myParticipantId, onReceiveEvent]);
   const io = ioRef.current;
 
   useEffect(() => {
@@ -135,12 +137,18 @@ export default function Chat({
 
   const messageListEndRef = useRef(null);
 
-  const [participants, setParticipants] = useState([]);
-  const [conversationName, setConversationName] = useState(
-    initialConversationName
+  const [participants, setParticipants] = useState(conversation.participants);
+  const [participantsById, setParticipantsById] = useState(
+    Object.fromEntries(participants.map((p) => [p.id, p]))
   );
 
+  const [conversationName, setConversationName] = useState(conversation.name);
+
   const [quotedMessage, setQuotedMessage] = useState(null);
+
+  useEffect(() => {
+    setParticipantsById(Object.fromEntries(participants.map((p) => [p.id, p])));
+  }, [participants, setParticipantsById]);
 
   useEffect(() => {
     setTimeout(
@@ -151,7 +159,7 @@ export default function Chat({
 
   const sendMessage = (message) => {
     if (!message) return;
-    message.senderId = myParticipantId;
+    message.senderId = conversation.myParticipantId;
     message.quotedMessageId = quotedMessage?.id;
     const send = (message) => {
       if (io) io.enqueueMessage(message);
@@ -166,11 +174,16 @@ export default function Chat({
       {/* header */}
       <ChatHeader
         conversationName={conversationName}
-        participants={participants.filter((p) => p.id !== myParticipantId)}
-        onTrigger={(action) => {
+        participants={participants.filter(
+          (p) => p.id !== conversation.myParticipantId
+        )}
+        onTrigger={(action, args = {}) => {
           switch (action) {
             case "leave":
               onLeave();
+              break;
+            case "changeMyName":
+              io.changeParticipantName(args.name);
               break;
             default:
               break;
@@ -184,7 +197,8 @@ export default function Chat({
           <MessageRow
             key={message.id}
             message={message}
-            myParticipantId={myParticipantId}
+            participants={participantsById}
+            myParticipantId={conversation.myParticipantId}
             handleQuote={() => {
               setQuotedMessage(message);
               messageInputRef.current.focus();
@@ -200,7 +214,8 @@ export default function Chat({
             <MessageRow
               key={message.localId}
               message={message}
-              myParticipantId={myParticipantId}
+              participants={participantsById}
+              myParticipantId={conversation.myParticipantId}
               quotedMessage={messagesById[message.quotedMessageId] || null}
             />
           ))}
@@ -211,6 +226,7 @@ export default function Chat({
 
       <QuotedMessage
         message={quotedMessage}
+        participants={participantsById}
         handleRemoveQuote={(e) => {
           setQuotedMessage(null);
           messageInputRef.current.focus();
@@ -224,15 +240,9 @@ export default function Chat({
 }
 
 Chat.propTypes = {
-  /** id of the conversation */
-  conversationId: PropTypes.string.isRequired,
-
-  /** id of the current participant in the conversation*/
-  myParticipantId: PropTypes.string.isRequired,
+  /** conversation */
+  conversation: PropTypes.instanceOf(Conversation).isRequired,
 
   /** function called when user leaves the conversation */
   onLeave: PropTypes.func.isRequired,
-
-  /** conversation title */
-  initialConversationName: PropTypes.string,
 };

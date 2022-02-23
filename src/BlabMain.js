@@ -43,9 +43,20 @@ export default function BlabMain() {
     setConversationId(conversation.id);
   }
 
+  function onLeave() {
+    setConversationId(null);
+    setConversation(null);
+    setMyParticipantId(null);
+  }
+
   useEffect(() => {
     if (conversationId && !conversation) {
-      new LobbyIO().joinConversation("", conversationId, enterConversation);
+      new LobbyIO().joinConversation(
+        "",
+        conversationId,
+        enterConversation,
+        onLeave
+      );
     }
   }, [conversationId, conversation]);
 
@@ -66,14 +77,7 @@ export default function BlabMain() {
             </div>
           )
         ) : (
-          <Chat
-            conversation={conversation}
-            onLeave={() => {
-              setConversationId(null);
-              setConversation(null);
-              setMyParticipantId(null);
-            }}
-          />
+          <Chat conversation={conversation} onLeave={onLeave} />
         )
       ) : (
         <p>

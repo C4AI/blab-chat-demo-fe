@@ -101,6 +101,8 @@ export default function Chat({ conversation, onLeave }) {
 
   const [firstMessageTime, setFirstMessageTime] = useState(null);
 
+  const [limits, setLimits] = useState({});
+
   const ioRef = useRef(null);
   useEffect(() => {
     if (!ioRef.current)
@@ -130,6 +132,7 @@ export default function Chat({ conversation, onLeave }) {
         },
         200
       );
+      io.getLimits(setLimits);
     }
   }, [firstMessageTime, io]);
 
@@ -233,8 +236,12 @@ export default function Chat({ conversation, onLeave }) {
         }}
       />
 
-      {/* message field */}
-      <MessageInputArea onSendMessage={sendMessage} ref={messageInputRef} />
+      {/* input field */}
+      <MessageInputArea
+        onSendMessage={sendMessage}
+        limits={limits}
+        ref={messageInputRef}
+      />
     </div>
   );
 }

@@ -46,20 +46,12 @@ export class Conversation {
    * @param {Array<Participant>} participants list of participants
    * @param {string|null} myParticipantId id of the current participant
    *     (or `null` if not present)
-   * @param {Object} capabilities conversation capabilities
    */
-  constructor(
-    id,
-    name,
-    participants,
-    myParticipantId = null,
-    capabilities = {}
-  ) {
+  constructor(id, name, participants, myParticipantId = null) {
     this.id = id;
     this.name = name;
     this.participants = participants;
     this.myParticipantId = myParticipantId;
-    this.capabilities = capabilities;
   }
 
   /**
@@ -71,15 +63,13 @@ export class Conversation {
    * @param {Array<Object>} c.participants list of participants
    * @param {string|null} c.my_participant_id id of the current participant
    *     (or `null` if not present)
-   * @param {Object} capabilities conversation capabilities
    */
   static fromServerData(c) {
     return new Conversation(
       c.id,
       c.name,
       c.participants.map((p) => Participant.fromServerData(p)),
-      c.my_participant_id,
-      c.capabilities
+      c.my_participant_id
     );
   }
 }

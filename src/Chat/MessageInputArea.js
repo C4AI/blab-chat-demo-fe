@@ -21,7 +21,7 @@ import AttachFileIcon from "@mui/icons-material/AttachFile";
  * @type React.FC<MessageInputAreaPropTypes>
  */
 const MessageInputArea = forwardRef(function (
-  { onSendMessage, capabilities = {} },
+  { onSendMessage, limits = {} },
   ref
 ) {
   const textFieldRef = useRef(null);
@@ -73,6 +73,21 @@ const MessageInputArea = forwardRef(function (
   const insertFileLbl = <Trans i18nKey="insertAttachment">Insert file</Trans>;
   const insertVoiceLbl = <Trans i18nKey="recordVoice">Record voice</Trans>;
 
+  const enableAudio = Boolean(limits.MAX_AUDIO_SIZE && limits.MAX_AUDIO_LENGTH);
+  const enableVideo = Boolean(
+    limits.MAX_VIDEO_SIZE &&
+      limits.MAX_VIDEO_LENGTH &&
+      limits.MAX_VIDEO_RESOLUTION
+  );
+  const enableImage = Boolean(
+    limits.MAX_IMAGE_SIZE && limits.MAX_IMAGE_RESOLUTION
+  );
+  const enableMedia = Boolean(enableAudio || enableVideo || enableImage);
+  const enableVoice = Boolean(
+    limits.MAX_VOICE_LENGTH && limits.MAX_VOICE_LENGTH
+  );
+  const enableAttachment = Boolean(limits.MAX_ATTACHMENT_SIZE);
+
   return (
     <TextField
       inputRef={textFieldRef}
@@ -93,9 +108,7 @@ const MessageInputArea = forwardRef(function (
         endAdornment: (
           <InputAdornment position="end">
             <Stack>
-              {(capabilities.maxImageSize ||
-                capabilities.maxAudioSize ||
-                capabilities.maxVideoSize) && (
+              {enableMedia && (
                 <Tooltip title={insertMediaLbl}>
                   <span>
                     <IconButton
@@ -109,7 +122,7 @@ const MessageInputArea = forwardRef(function (
                   </span>
                 </Tooltip>
               )}
-              {capabilities.maxAttachmentSize && (
+              {enableAttachment && (
                 <Tooltip title={insertFileLbl}>
                   <span>
                     <IconButton
@@ -124,7 +137,7 @@ const MessageInputArea = forwardRef(function (
                 </Tooltip>
               )}
             </Stack>
-            {(typedText.trim() || !capabilities.maxVoiceLength) && (
+            {(typedText.trim() || !enableVoice) && (
               <Tooltip title={sendLbl}>
                 <span>
                   <IconButton
@@ -138,7 +151,7 @@ const MessageInputArea = forwardRef(function (
                 </span>
               </Tooltip>
             )}
-            {!typedText.trim() && capabilities.maxVoiceLength && (
+            {!typedText.trim() && enableVoice && (
               <Tooltip title={insertVoiceLbl}>
                 <span>
                   <IconButton
@@ -162,8 +175,8 @@ const MessageInputAreaPropTypes = {
   /** called when a message is sent */
   onSendMessage: PropTypes.func.isRequired,
 
-  /** chat capabilities */
-  capabilities: PropTypes.object,
+  /** chat limits */
+  limits: PropTypes.object,
 };
 MessageInputArea.propTypes = MessageInputAreaPropTypes;
 

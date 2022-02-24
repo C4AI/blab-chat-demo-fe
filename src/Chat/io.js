@@ -174,6 +174,11 @@ class MessageIO {
     });
   }
 
+  /**
+   * Change the name of the participant.
+   *
+   * @param {string} name participant's new name
+   */
   changeParticipantName(name) {
     let url =
       `/api/chat/conversations/${this.conversationId}/` +
@@ -187,6 +192,26 @@ class MessageIO {
         },
       }
     );
+  }
+
+  /**
+   * Get the chat limits
+   *
+   * @param {conversationListCallback} callback function called when the limits are retrieved
+   * @param {number} retries number of retries if the request fails with 5XX
+   */
+  getLimits(callback, retries = Infinity) {
+    axios
+      .get("/api/chat/limits/", {
+        "axios-retry": {
+          retries: retries,
+        },
+      })
+      .then((r) => {
+        if (this.intentionallyClosed) return;
+        callback(r.data);
+      })
+      .catch(console.log);
   }
 
   /**

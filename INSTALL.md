@@ -31,5 +31,7 @@
     front-end.
 
 - To start the development server, run `npm start`.
+  Note that you have to restart the server after any changes
+  to the environment variables in the previous item.
 
 - To generate a static build for production, run `npm run build`.

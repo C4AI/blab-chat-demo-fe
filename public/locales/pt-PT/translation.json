@@ -1,4 +1,5 @@
 {
+  "welcomeMessage": "Bem-vindo(a) ao BLAB. Qual é o teu nome?",
   "youJoinedConversation": "Tu entraste na conversa",
   "youLeftConversation": "Tu saíste da conversa",
   "typeMessage": "Digita uma mensagem",

@@ -1,4 +1,4 @@
-import { Box, TextField } from "@mui/material";
+import { Box, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useEffect, useRef, useState } from "react";
 import ConversationList from "./ConversationList";
@@ -9,7 +9,12 @@ import BotSelector from "./BotSelector";
 
 /** Display a chat lobby, with the existing conversations
  * and an option to create a new one. */
-export default function Lobby({ onJoinConversation, onCreateConversation }) {
+export default function Lobby({
+  onJoinConversation,
+  onCreateConversation,
+  mode,
+  bots,
+}) {
   const [conversations, setConversations] = useState([]);
 
   const [selectedId, setSelectedId] = useState(null);
@@ -25,14 +30,14 @@ export default function Lobby({ onJoinConversation, onCreateConversation }) {
 
   const [isJoining, setIsJoining] = useState(false);
 
-  const [bots, setBots] = useState([]);
+  const [availableBots, setAvailableBots] = useState(null);
 
   const ioRef = useRef(null);
   useEffect(() => {
     if (!ioRef.current) {
       ioRef.current = new LobbyIO();
       ioRef.current.getConversations(setConversations, console.log, 1000);
-      ioRef.current.getBots(setBots, 1000);
+      ioRef.current.getBots(setAvailableBots, 1000);
     }
     const s = ioRef.current;
 
@@ -47,21 +52,49 @@ export default function Lobby({ onJoinConversation, onCreateConversation }) {
     else localStorage.removeItem(nicknameKey);
   }, [nickname]);
 
+  useEffect(() => {
+    if (availableBots !== null && mode === "bots") {
+      setSelectedBots(bots.filter((b) => bots.includes(b)));
+      setNewConversationName(" ");
+      setSelectedId(idForNewConversation);
+      bots
+        .filter((b) => !availableBots.includes(b))
+        .forEach((b) => console.log(`ERROR: bot "${b}" is not available.`));
+    }
+  }, [availableBots, mode, bots]);
+
   const onFailEnteringConversation = (e) => {
     console.log(e);
     setIsJoining(false);
   };
 
+  if (mode === "bots") {
+    if (!bots.length) {
+      console.log("ERROR: `mode` is 'bots', but `bots` is an empty array");
+      return null;
+    }
+  }
+
   return (
     <Box sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
-      <ConversationList
-        conversations={conversations}
-        idForNewConversation={idForNewConversation}
-        selectedId={selectedId}
-        handleSelectionChange={setSelectedId}
-        handleConversationNameChange={setNewConversationName}
-      />
-
+      {mode === "rooms" && (
+        <ConversationList
+          conversations={conversations}
+          idForNewConversation={idForNewConversation}
+          selectedId={selectedId}
+          handleSelectionChange={setSelectedId}
+          handleConversationNameChange={setNewConversationName}
+        />
+      )}
+      {mode === "bots" && (
+        <Typography className="welcome-message" align="center">
+          <br />
+          <br />
+          <Trans i18nKey="welcomeMessage">Welcome!</Trans>
+          <br />
+          <br />
+        </Typography>
+      )}
       <TextField
         required
         id="name"
@@ -72,10 +105,12 @@ export default function Lobby({ onJoinConversation, onCreateConversation }) {
         value={nickname || ""}
         onChange={(e) => setNickname(e.target.value)}
       />
-
-      {selectedId === idForNewConversation && (
+      {mode === "rooms" && selectedId === idForNewConversation && (
         <div className="bot-selector-wrapper">
-          <BotSelector bots={bots} onChangeSelection={setSelectedBots} />
+          <BotSelector
+            bots={availableBots || []}
+            onChangeSelection={setSelectedBots}
+          />
         </div>
       )}
 
@@ -104,12 +139,14 @@ export default function Lobby({ onJoinConversation, onCreateConversation }) {
           }}
           disabled={
             !selectedId ||
-            (selectedId === "NEW" && !newConversationName) ||
+            (selectedId === idForNewConversation && !newConversationName) ||
             !nickname ||
             isJoining
           }
         >
-          {selectedId !== idForNewConversation ? (
+          {mode === "bots" ? (
+            <Trans i18nKey="startConversation">Start conversation</Trans>
+          ) : selectedId !== idForNewConversation ? (
             <Trans i18nKey="joinConversation">Join conversation</Trans>
           ) : (
             <Trans i18nKey="createConversation">Create conversation</Trans>
@@ -132,4 +169,15 @@ Lobby.propTypes = {
    * and the conversation name)
    */
   onCreateConversation: PropTypes.func.isRequired,
+
+  /** mode ("rooms" should be used for testing purposes, "bots"
+   * otherwise)
+   */
+  mode: PropTypes.oneOf(["rooms", "bots"]).isRequired,
+
+  /**
+   * bots that should be automatically invited to the conversation
+   * (only if `mode` == "bots")
+   */
+  bots: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
 };

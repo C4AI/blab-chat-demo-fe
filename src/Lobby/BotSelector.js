@@ -43,7 +43,7 @@ export default function BotSelector({ bots, onChangeSelection }) {
       >
         {bots.map((name) => (
           <MenuItem key={name} value={name}>
-            <Checkbox checked={selectedBots.indexOf(name) >= 0} />
+            <Checkbox checked={selectedBots.includes(name)} />
             <ListItemText primary={name} />
           </MenuItem>
         ))}

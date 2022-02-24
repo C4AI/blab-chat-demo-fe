@@ -49,6 +49,9 @@ export default function BlabMain() {
     setMyParticipantId(null);
   }
 
+  const mode = process.env.REACT_APP_CHAT_MODE;
+  const bots = JSON.parse(process.env.REACT_APP_CHAT_BOTS || "[]");
+
   useEffect(() => {
     if (conversationId && !conversation) {
       new LobbyIO().joinConversation(
@@ -60,14 +63,25 @@ export default function BlabMain() {
     }
   }, [conversationId, conversation]);
 
+  if (process.env.NODE_ENV === "development")
+    console.log({
+      environment: process.env.NODE_ENV,
+      mode: process.env.REACT_APP_CHAT_MODE,
+      language: i18n.language,
+      languages: i18n.languages,
+      resolvedLanguage: i18n.resolvedLanguage,
+    });
+
   return (
     <Container component="main" maxWidth="xs">
-      {process.env.REACT_APP_CHAT_MODE === "rooms" ? (
+      {["rooms", "bots"].includes(mode) ? (
         !conversation ? (
           !conversationId ? (
             <Lobby
               onCreateConversation={enterConversation}
               onJoinConversation={enterConversation}
+              mode={mode}
+              bots={bots}
             />
           ) : (
             <div>
@@ -85,21 +99,6 @@ export default function BlabMain() {
           <code>REACT_APP_CHAT_MODE</code> TO <i>rooms</i> OR <i>bots</i> AND
           TRY AGAIN.
         </p>
-      )}
-      {process.env.NODE_ENV === "development" && (
-        <div>
-          <p>
-            ENVIRONMENT: <b>{process.env.NODE_ENV}</b>
-          </p>
-          <p>
-            MODE: <b>{process.env.REACT_APP_CHAT_MODE}</b>
-          </p>
-          <p>
-            LANGUAGE: <b>{i18n.language}</b> (
-            {i18n.languages ? i18n.languages.join(", ") : "?"}) &rarr;{" "}
-            {i18n.resolvedLanguage}
-          </p>
-        </div>
       )}
     </Container>
   );

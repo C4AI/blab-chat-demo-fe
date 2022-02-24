@@ -13,7 +13,10 @@ const theme = createTheme({
 
 function App() {
   return (
-    <Suspense fallback={<div>Loading... </div>}>
+    // The message below cannot be translated because it is shown
+    // before the translations are loaded;
+    // perhaps we can replace it with an icon
+    <Suspense fallback={<div>Loading... / Carregando...</div>}>
       <ThemeProvider theme={theme}>
         <BlabMain />
       </ThemeProvider>

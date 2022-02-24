@@ -1,8 +1,10 @@
 {
+  "welcomeMessage": "Bem-vindo(a) ao BLAB. Digite seu nome:",
   "newConversation": "Nova:",
   "newConversationName": "Nome da conversa",
   "yourName": "Nome",
   "joinConversation": "Entrar na conversa",
+  "startConversation": "Iniciar conversa",
   "createConversation": "Criar conversa",
   "createdConversation": "Conversa criada",
   "joinedConversation": "<0>{{name}}</0> entrou na conversa",

@@ -15,8 +15,8 @@ export default function ChatHeader({
     <Card className="chat-header">
       <CardHeader
         className="chat-header"
-        title={conversationName}
-        subheader={participants.map((p) => p.name).join(", ")}
+        subheader={conversationName}
+        title={participants.map((p) => p.name).join(", ")}
         action={<ChatRightMenu onTrigger={onTrigger} />}
       />
     </Card>
